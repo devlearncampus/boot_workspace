@@ -28,29 +28,17 @@ public class MybatisBoardDAO implements BoardDAO{
 
     @Override
     public void insert(Board board) throws DataAccessException {
-        try {
-            boardMapper.insert(board);
-        } catch (DataAccessException e) {
-            throw new BoardException("글쓰기 실패",e);
-        }
+        boardMapper.insert(board);
     }
 
     @Override
     public Board update(Board board) throws DataAccessException {
-        try {
-            boardMapper.update(board);
-        } catch (DataAccessException e) {
-            throw new BoardException("글수정 실패",e);
-        }
+        boardMapper.update(board);
         return board;
     }
 
     @Override
     public void delete(int board_id) throws DataAccessException {
-        try {
-            boardMapper.delete(board_id);
-        } catch (DataAccessException e) {
-            throw new BoardException("삭제 실패",e);
-        }
+        boardMapper.delete(board_id);
     }
 }
