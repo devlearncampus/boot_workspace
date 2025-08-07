@@ -33,6 +33,7 @@ dependencies {
 
     //JPA(Java Persistence API) - 자바의 공식 ORM(Hibernate)
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.5.4")
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
     implementation("com.mysql:mysql-connector-j:8.0.33")
 }
 

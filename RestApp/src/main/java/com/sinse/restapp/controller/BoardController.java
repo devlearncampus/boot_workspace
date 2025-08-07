@@ -55,11 +55,19 @@ public class BoardController {
 
     //수정요청 처리
     @PutMapping("/boards/{board_id}")
-    public ResponseEntity<String> update(@RequestBody Board board, @PathVariable int board_id) {
+    public ResponseEntity<String> update(@RequestBody Board board, @PathVariable("board_id") int board_id) {
         board.setBoard_id(board_id);//경로로 전송된 파라미터를 다시한번 확인 차 모델에 대입
         boardService.update(board);
         return ResponseEntity.ok("success");
     }
+
+    //수정요청 처리
+    @DeleteMapping("/boards/{board_id}")
+    public ResponseEntity<String> delete(@PathVariable("board_id") int board_id) {
+        boardService.delete(board_id);
+        return ResponseEntity.ok("success");
+    }
+
 }
 
 
