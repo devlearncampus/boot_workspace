@@ -26,12 +26,12 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public List selectAll() {
-        return List.of();
+        return boardDAO.selectAll();
     }
 
     @Override
     public Board select(int board_id) {
-        return null;
+        return boardDAO.select(board_id);
     }
 
     @Override
@@ -47,12 +47,21 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Board update(Board board) {
-        return null;
+    public Board update(Board board)  throws BoardException {
+        try {
+            return boardDAO.update(board);
+        } catch (DataAccessException e) {
+            throw new BoardException("수정실패",e);
+        }
+
     }
 
     @Override
-    public void delete(int board_id) {
-
+    public void delete(int board_id) throws BoardException {
+        try {
+            boardDAO.delete(board_id);
+        } catch (DataAccessException e) {
+            throw new BoardException("수정실패",e);
+        }
     }
 }
