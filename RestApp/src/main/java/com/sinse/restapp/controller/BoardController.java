@@ -6,10 +6,7 @@ import com.sinse.restapp.model.board.BoardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,5 +46,27 @@ public class BoardController {
         return ResponseEntity.ok("success");
     }
 
+    //결국 아래의 url 에 대해 Restful 한 URL을 이해하고 있음
+    @GetMapping("/boards/{board_id}")
+    public Board select(@PathVariable int board_id) {
+        Board board = boardService.select(board_id);
+        return board;
+    }
 
+    //수정요청 처리
+    @PutMapping("/boards/{board_id}")
+    public ResponseEntity<String> update(@RequestBody Board board, @PathVariable int board_id) {
+        board.setBoard_id(board_id);//경로로 전송된 파라미터를 다시한번 확인 차 모델에 대입
+        boardService.update(board);
+        return ResponseEntity.ok("success");
+    }
 }
+
+
+
+
+
+
+
+
+
