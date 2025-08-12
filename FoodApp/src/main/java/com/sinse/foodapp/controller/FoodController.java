@@ -1,8 +1,11 @@
 package com.sinse.foodapp.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sinse.foodapp.model.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedReader;
@@ -56,8 +59,10 @@ public class FoodController {
     }
 
     @GetMapping("/stores")
-    public String getStores(String store_name) throws IOException, InterruptedException {
+    public ApiResponse getStores(String store_name) throws IOException, InterruptedException {
         String baseUrl="http://apis.data.go.kr/6430000/cbRecreationalFoodInfoService/getRecreationalFoodInfo";
+
+        //if(store_name.length()<1)store_name="";
 
         //파라미터 설정
         String url=baseUrl+"?" +
@@ -79,7 +84,15 @@ public class FoodController {
         //Open API 서버에 요청 시도
         HttpResponse<String> response =client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        return response.body();
+        //String 자체를 클라이언트에게 전송해버리면, 클라이언트가 문자열을 json 으로 파싱해야 하고,
+        //이 방법은 권장되지 않음
+        //따라서 지금부터, Open API의 String 결과물을 자바의 클래스로 매핑시키되, jackson 을 이용하여 자동화
+        //시키자!! 클라이언트에게 응답 정보로 사용할 수 있을 뿐 아니라, 객체화 되어 있기 때문에 서버에서도
+        //활용할 수 있다..
+        ObjectMapper objectMapper=new ObjectMapper();
+        ApiResponse apiResponse=objectMapper.readValue(response.body(), ApiResponse.class);
+
+        return apiResponse;
     }
 
 }
