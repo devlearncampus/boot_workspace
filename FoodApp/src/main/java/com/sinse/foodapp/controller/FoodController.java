@@ -9,15 +9,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RestController
 public class FoodController {
     private String serviceKey="gqyjgm7YCCfzUhERdAskcLXMrhYpClNgxHq12hR59LpYnVs9enXgcQPvDsLkhOAN8fTAsSqt8j%2BJ1H6%2BHPfoFw%3D%3D";
 
-    @GetMapping("/stores")
+    /*
+    HttpURLConnection 는 동작은 하지만, 최신의 방식은 아님
+    코드가 복잡하다
+    */
+    @GetMapping("/old/stores")
     public String getList(String store_name) throws IOException {
         StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/6430000/cbRecreationalFoodInfoService/getRecreationalFoodInfo"); /*URL*/
         urlBuilder.append("?" + URLEncoder.encode("serviceKey","UTF-8") + "="+serviceKey); /*Service Key*/
@@ -45,4 +54,32 @@ public class FoodController {
         System.out.println(sb.toString());
         return sb.toString();
     }
+
+    @GetMapping("/stores")
+    public String getStores(String store_name) throws IOException, InterruptedException {
+        String baseUrl="http://apis.data.go.kr/6430000/cbRecreationalFoodInfoService/getRecreationalFoodInfo";
+
+        //파라미터 설정
+        String url=baseUrl+"?" +
+            "serviceKey="+serviceKey+
+            "&currentPage="+URLEncoder.encode("1", StandardCharsets.UTF_8)+
+                "&perPage="+URLEncoder.encode("20", StandardCharsets.UTF_8)+
+                "&CMPNM="+URLEncoder.encode(store_name, StandardCharsets.UTF_8);
+
+        //HttpUrlConnection 보다 개선
+        HttpClient client = HttpClient.newHttpClient();
+
+        //요청 정보 객체 생성
+        HttpRequest request=HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        //Open API 서버에 요청 시도
+        HttpResponse<String> response =client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return response.body();
+    }
+
 }
