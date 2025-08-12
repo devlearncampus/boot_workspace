@@ -31,10 +31,8 @@ public class BoardController {
     @GetMapping("/boards")
     public List selectAll(){
         log.debug("목록 요청 받음");
-        List list = new ArrayList();
-        list.add("apple");
-        list.add("banana");
-        list.add("grape");
+        List list = boardService.selectAll();
+
         return list;
     }
 
