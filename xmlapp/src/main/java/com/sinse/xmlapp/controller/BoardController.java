@@ -33,6 +33,12 @@ public class BoardController {
         return "board/list";
     }
 
+    @GetMapping("/board/registform")
+    public String registForm(Model model) {
+
+        return "board/write";
+    }
+
     @GetMapping("/board/detail")
     public String getDetail(int board_id, Model model) {
         Board board=boardService.select(board_id);

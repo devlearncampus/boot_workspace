@@ -18,10 +18,15 @@
         <tbody>
             <tr th:each="board : ${boardList}">
                 <td>1</td>
-                <td th:text="${board.title}">제목</td>
+                <td>
+                    <a th:text="${board.title}" th:href="@{|/board/detail?board_id=${board.board_id}|}">제목</a>
+                </td>
                 <td th:text="${board.writer}">1</td>
                 <td th:text="${board.regdate}">1</td>
                 <td th:text="${board.hit}">1</td>
+            </tr>
+            <tr colspan="5">
+               <button onclick="location.href='/board/registform';">글등록</button>
             </tr>
         </tbody>
     </table>
