@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #wrapper{
+            width:1200px;
+            height:800px;
+            background-color:yellow;
+            overflow: hidden;
+        }
+        #aside{
+            width: 200px;
+            height: 800px;
+            background: #ccc;
+            float: left;
+        }
+        #content{
+            width: 1000px;
+            height: 800px;
+            background-color: #26ff00;
+            float: left;
+        }
+        .room{
+            width:186px;
+            height:250px;
+            background: yellow;
+            border-radius: 2px;
+            border:5px solid red;
+            display: inline-block;
+            margin:1px;
+        }
+        .room-header{
+            width:100%;
+            height:25px;
+            background-color: #26ff00;
+        }
+        .room-body{
+            width:100%;
+            height:225px;
+            background: #26ff00;
+        }
+    </style>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+</head>
+<body>
+    <div id="app">
+        <div id="wraper">
+            <div id="aside">
+                <input type="text" placeholder="방제목 입력">
+                <input type="text">
+                <button type="button">방만들기</button>
+            </div>
+            <div id="content">
+                <div class="room" v-for="i in roomList">
+                    <div class="room-header">방제</div>
+                    <div class="room-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const {createApp, reactive, ref} = Vue;
+
+        createApp({
+            setup(){
+                let roomList=reactive([1,2,3,4,5,1,2,3,5]);
+                return {roomList};
+            }
+        }).mount("#app");
+
+    </script>
+</body>
+</html>
