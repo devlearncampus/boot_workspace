@@ -27,7 +27,7 @@ public class ChatEndpoint {
     //접속자 명단을 만든다
     private static Set<Session> userList = new HashSet<>();
     private static Set<Member> memberList = new HashSet<>(); //클라이언트에게 보내기 위한 정보
-    private static Set<Room> rooms= new HashSet<>(); // key-UUID, value-유저목록
+    private static Set<Room> roomList= new HashSet<>(); // key-UUID, value-유저목록
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -83,31 +83,57 @@ public class ChatEndpoint {
         ----------------------------------------------------------*/
         if(requestType.equals("createRoom")){
             log.debug("방 만들어줄께");
+
             String userId=jsonNode.get("userId").asText();
-            String id=(String)session.getUserProperties().get("id");
             String roomName=(String)session.getUserProperties().get("roomName");
 
-            if(!userId.equals(id)){
+            Member member=(Member)session.getUserProperties().get("member");
+
+            if(!userId.equals(member.getId())){
                 //방실패 메세지 전송
             }else{
                 //방 만들기
                 UUID uuid = UUID.randomUUID();
                 Room room = new Room();
                 room.setUUID(uuid.toString());
-                room.setMaster(jsonNode.get("userId").asText()); //방장
-                room.setRoomName(jsonNode.get("roomName").asText());
+                room.setMaster(userId); //방장
+                room.setRoomName(roomName);
 
                 //방 참여자 등록
                 Set users=new HashSet<>();
-                users.add(id);
+
+                Member obj=new Member();
+                obj.setId(member.getId());
+                obj.setName(member.getName());
+                obj.setEmail(member.getEmail());
+
+                users.add(obj);//방을 개설한 주인을 참여자로 등록
                 room.setUsers(users);
 
-                //방목록에 방 추가
-                rooms.add(room);
+                roomList.add(room);
 
-                RoomResponse  roomResponse=new RoomResponse();
+
+                /*
+                * 클라이언트에게 전송할 응답 프로토콜
+                 {
+                    responseType:"createRoom",
+                    memberList:[
+                        {
+                        }
+                    ],
+                    roomList :  [
+                        {
+                            UUID: "dhfuwidfysadjkhfdsakj"
+                            master:"mario",
+                        }
+                    ]
+                 }
+                */
+                RoomResponse roomResponse=new RoomResponse();
                 roomResponse.setResponseType("createRoom");
-                roomResponse.setRoomList(rooms);
+                roomResponse.setMemberList(memberList);
+                roomResponse.setRoomList(roomList);
+
 
                 session.getAsyncRemote().sendText(objectMapper.writeValueAsString(roomResponse));
             }

@@ -1,5 +1,6 @@
 package com.sinse.chatroomapp.dto;
 
+import com.sinse.chatroomapp.domain.Member;
 import jakarta.websocket.Session;
 import lombok.Data;
 
@@ -10,6 +11,6 @@ public class Room {
     private String UUID;
     private String master; //방장
     private String roomName; //방제
-    private Set<String> users; //참여자 id 들
+    private Set<Member> users; //참여자 id 들
 
 }

@@ -110,12 +110,15 @@
           if(responseJson.responseType=="createRoom"){
             roomList.splice(0); //바인딩 배열 비우기
 
-            responseJson.roomList.forEach(item=>{
-              roomList.push(item);
+            responseJson.memberList.forEach(member=>{
+              roomList.push(member);
             });
-            responseJson.memberList.forEach(item=>{
-              roomList.push(item);
-            });
+
+            if(responseJson.roomList !=null) {
+              responseJson.roomList.forEach(room => {
+                roomList.push(room);
+              });
+            }
 
           }
 

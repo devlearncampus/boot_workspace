@@ -50,4 +50,25 @@ public class MemberController {
         return viewName;
     }
 
+    @GetMapping("/chat/room")
+    public String room() {
+
+        return "chat/room";
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
