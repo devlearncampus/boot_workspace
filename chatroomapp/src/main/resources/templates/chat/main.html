@@ -134,7 +134,9 @@
             </div>
             <div id="content">
                 <div class="room" v-for="room in roomList">
-                    <div class="room-header">방제</div>
+                    <div class="room-header">
+                        <a href="" @click.prevent="openForm(room.uuid)">{{room.roomName}}</a>
+                    </div>
                     <div class="room-body"></div>
                 </div>
             </div>
@@ -184,6 +186,8 @@
                                     roomList.push(room);
                                 });
                             }
+                        }else if(responseJson.responseType == "enterRoom"){
+                            console.log(responseJson.room);
                         }
 
                     }
@@ -208,9 +212,21 @@
                     console.log(payload);
                     request(JSON.stringify(payload));
                 }
+
+                //채팅방 입장하기
+                const openForm = (roomId) => {
+                    flag.value=!flag.value;
+
+                    let payload={
+                        requestType:"enterRoom",
+                        uuid:roomId
+                    }
+                    request(JSON.stringify(payload));
+                }
+
                 connect();
 
-                return {roomList, memberList,flag, connect, createRoom};
+                return {roomList, memberList,flag, connect, createRoom,openForm};
             }
         }).mount("#app");
 

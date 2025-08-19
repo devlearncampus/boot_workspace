@@ -24,6 +24,7 @@ public class MemberController {
 
     @GetMapping("/member/loginform")
     public String loginForm() {
+
         return "member/login";
     }
 

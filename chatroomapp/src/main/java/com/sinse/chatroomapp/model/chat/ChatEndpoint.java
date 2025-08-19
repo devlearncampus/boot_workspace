@@ -3,8 +3,9 @@ package com.sinse.chatroomapp.model.chat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sinse.chatroomapp.domain.Member;
+import com.sinse.chatroomapp.dto.EnterRoomResponse;
 import com.sinse.chatroomapp.dto.Room;
-import com.sinse.chatroomapp.dto.RoomResponse;
+import com.sinse.chatroomapp.dto.CreateRoomResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnMessage;
@@ -27,7 +28,7 @@ public class ChatEndpoint {
     private static Set<Session> userList=new HashSet<>();//서버측에서 필요한 접속자 정보
 
     private static Set<Member> memberList=new HashSet<>();//클라이언트에게 전달할 접속자 정보
-    private static Set<Room> roomList=new HashSet<>();//클라이언트에게 전달한 룸 정보
+    private static Set<Room> roomList=new HashSet<>();//클라이언트에게 전달한 전체 룸 정보
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -61,7 +62,7 @@ public class ChatEndpoint {
                 }
             */
             //응답정보 만들기
-            RoomResponse roomResponse=new RoomResponse();
+            CreateRoomResponse roomResponse=new CreateRoomResponse();
             roomResponse.setResponseType("createRoom");
 
             //회원정보 채우기
@@ -133,7 +134,7 @@ public class ChatEndpoint {
                     ]
                  }
                 */
-                RoomResponse roomResponse=new RoomResponse();
+                CreateRoomResponse roomResponse=new CreateRoomResponse();
                 roomResponse.setResponseType("createRoom");
                 roomResponse.setMemberList(memberList);
                 roomResponse.setRoomList(roomList);
@@ -143,7 +144,45 @@ public class ChatEndpoint {
             }
 
 
-        }else if(requestType.equals("joinRoom")) {
+        }else if(requestType.equals("enterRoom")) {
+            log.debug("방입장 처리 요청 처리 ");
+
+            String uuid=jsonNode.get("uuid").asText();
+
+            /*전통적인 방식으로처리 할 경우*/
+            Room result=null;
+            for(Room r : roomList){
+                if(uuid.equals(r.getUUID())){
+                    result=r;
+                    break;
+                }
+            }
+            /*
+            Stream api를 이용할 경우
+            1) 필터링, 매핑, 집계 등 데이터 처리 시 적합
+            roomList.stream()
+                .filter(r -> uuid.equals(r.getUUID())) 조건에 맞는 요소만 추림
+                .findFirst() 조건에 맞는 첫 번째 요소 반환
+                .orElse(null); 없으면 null 리턴
+            */
+
+            //찾아낸 Room 에 같은 유저가 존재하지 않을때만 Set에 추가한다
+            Member member=(Member)session.getUserProperties().get("member");
+
+            for(Member obj : result.getUsers()){
+                if(member.getId().equals(obj.getId())){
+                    
+                }
+            }
+
+
+
+            //응답 정보 만들기
+            EnterRoomResponse roomResponse=new EnterRoomResponse();
+            roomResponse.setResponseType("enterRoom");
+            roomResponse.setRoom(result); //룸대입
+
+            session.getAsyncRemote().sendText(objectMapper.writeValueAsString(roomResponse));
 
         }else if(requestType.equals("exitRoom")) {
 
