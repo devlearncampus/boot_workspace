@@ -50,12 +50,25 @@
     <div id="app">
         <div id="wraper">
             <div id="aside">
-                <input type="text" placeholder="방제목 입력">
-                <input type="text">
-                <button type="button">방만들기</button>
+
+                <div th:if="${session.member !=null}">
+                    <h4 th:text="${session.member.id+'님'}"></h4>
+                    <h4 th:text="|${session.member.name}님|"></h4>
+                </div>
+
+                <input type="hidden" th:value="${session.member.id}" name="id">
+
+                <input type="text" placeholder="방제목 입력" name="roomName">
+
+                <button type="button" @click="createRoom()">방만들기</button>
+
+                <ul>
+                    <li>접속자 목록</li>
+                    <li v-for="member in memberList">{{member.name}}</li>
+                </ul>
             </div>
             <div id="content">
-                <div class="room" v-for="i in roomList">
+                <div class="room" v-for="room in roomList">
                     <div class="room-header">방제</div>
                     <div class="room-body"></div>
                 </div>
@@ -67,8 +80,74 @@
 
         createApp({
             setup(){
-                let roomList=reactive([1,2,3,4,5,1,2,3,5]);
-                return {roomList};
+                let roomList=reactive([]);
+                let memberList=reactive([]);
+
+                let ws=null; //웹소켓 객체 선언
+
+                //서버에 요청
+                const request=(data)=>{
+                    ws.send(data);
+                }
+
+                //웹소켓 서버에 접속
+                const connect=()=>{
+                    ws = new WebSocket("ws://localhost:8989/chat/multi");
+
+                    //접속이 성공되면...
+                    ws.onopen = (event)=>{
+                    }
+
+                    //메시지가 수신되면..
+                    ws.onmessage=(e)=>{
+                        console.log("접속과 동시에 수신 받은 데이터는 ", e.data);
+
+                        //JSON 파싱 하는 이유? 데이터를 객체취급하여 .찍고 접근하기 위함..
+                        const responseJson=JSON.parse(e.data);
+
+                        if(responseJson.responseType=="createRoom"){
+                            memberList.splice(0); //기존 배열 비우기
+
+                            //접속자 명단
+                            responseJson.memberList.forEach(member=>{
+                                memberList.push(member);
+                            });
+
+                            //채팅방 목록
+                            if(responseJson.roomList !=null) {
+                                responseJson.roomList.forEach(room => {
+                                    roomList.push(room);
+                                });
+                            }
+
+
+                        }
+
+                    }
+
+                }
+
+
+                //방만들기 요청
+                /*
+                    {
+                        requestType:"createRoom",
+                        userId:"mario",
+                        roomName:"사당벙개"
+                    }
+                */
+                const createRoom = () => {
+                    let payload={
+                        requestType:"createRoom",
+                        userId: $("input[name='id']").val(),
+                        roomName:$("input[name='roomName']").val()
+                    }
+                    console.log(payload);
+                    request(JSON.stringify(payload));
+                }
+                connect();
+
+                return {roomList, memberList ,connect, createRoom};
             }
         }).mount("#app");
 

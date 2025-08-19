@@ -42,12 +42,24 @@ public class MemberController {
 
     @GetMapping("/chat/main")
     public String main(HttpSession session) {
+
+        //로그인 하지 않고, /chat/main 접근하면 자동으로 로그인폼으로 돌려보냄
         String viewName="chat/main";
 
-        if(session.getAttribute("member") == null) {
+        if(session.getAttribute("member") == null){
             viewName="member/login";
         }
         return viewName;
     }
 
 }
+
+
+
+
+
+
+
+
+
+

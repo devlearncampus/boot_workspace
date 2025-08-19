@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    #wrapper{
+      width:1200px;
+      height:800px;
+      background-color:yellow;
+      overflow: hidden;
+    }
+    #aside{
+      width: 200px;
+      height: 800px;
+      background: #ccc;
+      float: left;
+    }
+    #content{
+      width: 1000px;
+      height: 800px;
+      background-color: #26ff00;
+      float: left;
+    }
+    .room{
+      width:186px;
+      height:250px;
+      background: yellow;
+      border-radius: 2px;
+      border:5px solid red;
+      display: inline-block;
+      margin:1px;
+    }
+    .room-header{
+      width:100%;
+      height:25px;
+      background-color: #26ff00;
+    }
+    .room-body{
+      width:100%;
+      height:225px;
+      background: #26ff00;
+    }
+  </style>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+</head>
+<body>
+<div id="app">
+  <div id="wraper">
+    <div id="aside">
+      <div th:if="${session.member !=null}">
+        <h4 th:text="${session.member.id+'님'}"></h4>
+        <h4 th:text="|${session.member.name}님|"></h4>
+      </div>
+      <div th:unless="${session.member !=null}">
+        <h4>로그인 필요</h4>
+      </div>
+      <input type="text" placeholder="방제목 입력" name="roomName">
+      <input type="hidden" th:value="${session.member.id}" name="id">
+
+      <button type="button" @click="createRoom()">방만들기</button>
+
+      <ul>
+        <li v-for="member in memberList">{{member.id}}</li>
+      </ul>
+
+    </div>
+    <div id="content">
+      <div class="room" v-for="room in roomList">
+        <div class="room-header">
+          <a :href="'/chat/room?room_id='+room.uuid">
+            {{room.roomName+",참여자 수:"+room.users.length}}
+          </a>
+        </div>
+        <div class="room-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:inline="javascript">
+  const {createApp, reactive, ref} = Vue;
+
+  createApp({
+    setup(){
+      let roomList=reactive([]);
+      let memberList=reactive([]);
+
+      let ws=null;
+
+      //서버에 데이터 전송
+      const request=(data)=>{
+        ws.send(data);
+      }
+
+      //접속하기
+      const connect=()=>{
+        ws = new WebSocket("ws://localhost:8888/chat/multi");
+        ws.onopen=()=>{
+
+        }
+        ws.onmessage=(e)=>{
+          console.log(e.data);
+          let responseJson=JSON.parse(e.data);
+
+          /*--------------------------------
+          방 만들기에 대한 응답인 경우
+          --------------------------------*/
+          if(responseJson.responseType=="createRoom"){
+            roomList.splice(0); //바인딩 배열 비우기
+
+            responseJson.roomList.forEach(item=>{
+              roomList.push(item);
+            });
+            responseJson.memberList.forEach(item=>{
+              roomList.push(item);
+            });
+
+          }
+
+        }
+      }
+
+      //방생성 요청
+      const createRoom=()=>{
+        let payload= {
+          requestType : "createRoom",
+          userId:$("input[name='id']").val(),
+          roomName:$("input[name='roomName']").val()
+        }
+        console.log(payload);
+        request(JSON.stringify(payload));
+      }
+
+
+      connect();
+      return {roomList, memberList, connect, createRoom};
+    }
+  }).mount("#app");
+
+</script>
+</body>
+</html>

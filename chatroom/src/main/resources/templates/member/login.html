@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {font-family: Arial, Helvetica, sans-serif;}
+        * {box-sizing: border-box;}
+
+        input[type=text], input[type=password], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-top: 6px;
+            margin-bottom: 16px;
+            resize: vertical;
+        }
+
+        input[type=button] {
+            background-color: #04AA6D;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type=button]:hover {
+            background-color: #45a049;
+        }
+
+        .container {
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+    </style>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+
+<h3>Contact Form</h3>
+
+<div id="app" class="container">
+    <form id="form1">
+        <input type="text" name="id" placeholder="Your ID..">
+        <input type="password" name="password" placeholder="Your Password..">
+        <input type="button" value="Submit" @click="login()">
+    </form>
+</div>
+<script>
+    const {createApp, reactive, ref} = Vue;
+    createApp({
+        setup(){
+            const login=()=>{
+                let formData = new FormData(document.getElementById('form1'));
+                $.ajax({
+                    url:"/member/login",
+                    method:"POST",
+                    processData: false,// jQuery가 데이터를 문자열로 변환하지 않도록 설정
+                    contentType: false,// 브라우저가 자동으로 multipart/form-data 헤더를 붙이도록 설정
+                    data:formData,
+                    success:(result, status, xhr)=>{
+                        console.log(result);
+                        location.href="/chat/main";
+                    },
+                    error:(xhr, stauts, err)=>{
+
+                    }
+                });
+            }
+            return {login}
+        }
+    }).mount("#app");
+</script>
+</body>
+</html>
