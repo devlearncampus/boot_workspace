@@ -130,7 +130,7 @@
                 <div id="pop" v-show="flag">
                     <div id="content2">
                         <div id="content-header">{{roomName}}</div>
-                        <div id="content-body"></div>
+                        <div id="content-body">{{message}}</div>
                     </div>
                     <div id="aside2">
                         <div id="aside-header">{{master}}</div>
@@ -175,7 +175,7 @@
                 let userList=reactive([]); //참여자 목록
                 let uuid=ref(""); //방 고유값
                 let msg=ref(""); //전송할 채팅 메시지
-
+                let message=ref(""); //채팅 로그에 사용될 바인딩 변수
 
                 let ws=null; //웹소켓 객체 선언
 
@@ -226,8 +226,14 @@
                                userList.push(user);
                             });
 
+                        }else if(responseJson.responseType == "chat"){
+                            let sender=responseJson.sender;
+                            let data=responseJson.data;
+                            let uuid=responseJson.uuid;
+                            console.log(`${sender}님: ${data}\n`);
+                            // zino님: 밥먹엇니?
+                            message.value+=`${sender}님: ${data}\n`;
                         }
-
                     }
 
                 }
@@ -279,7 +285,7 @@
 
                 connect();
 
-                return {roomList, memberList,flag,roomName, master,userList, uuid, msg, connect, createRoom,openForm, sendMessage};
+                return {roomList, memberList,flag,roomName, master,userList, uuid, msg, message, connect, createRoom,openForm, sendMessage};
             }
         }).mount("#app");
 

@@ -3,6 +3,7 @@ package com.sinse.chatroomapp.model.chat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sinse.chatroomapp.domain.Member;
+import com.sinse.chatroomapp.dto.ChatResponse;
 import com.sinse.chatroomapp.dto.EnterRoomResponse;
 import com.sinse.chatroomapp.dto.Room;
 import com.sinse.chatroomapp.dto.CreateRoomResponse;
@@ -25,7 +26,7 @@ import java.util.UUID;
 public class ChatEndpoint {
 
     //접속자 명단
-    private static Set<Session> userList=new HashSet<>();//서버측에서 필요한 접속자 정보
+    private static Set<Session> userList =new HashSet<>();//서버측에서 필요한 접속자 정보
 
     private static Set<Member> memberList=new HashSet<>();//클라이언트에게 전달할 접속자 정보
     private static Set<Room> roomList=new HashSet<>();//클라이언트에게 전달한 전체 룸 정보
@@ -213,6 +214,53 @@ public class ChatEndpoint {
 
         }else if(requestType.equals("chat")){
             log.debug("채팅 요청 받음");
+
+            String sender=jsonNode.get("sender").asText();
+            String data=jsonNode.get("data").asText();
+            String uuid=jsonNode.get("uuid").asText();
+            /*
+            1) 같은 방에 있는 유저들에게 브로드케스팅 한다
+
+            * */
+
+            //클라이언트가 전송한 UUID를 이용하여, 서버에 존재하는 여러 채팅방 중 한 방을 선택하자
+            Room room=null;
+            for(Room r : roomList){
+                if(uuid.equals(r.getUUID())){
+                    room=r; //발견된 방을 보관
+                    break;
+                }
+            }
+
+            //Room에 들어있는 대화참여자들의 정보를 이용하여, Session 을 보유한 userList 와 비교한후
+            //대화참여자의 Session이 발견되면, 메시지를 보내자(브로드케스팅)
+            /*
+            {
+                responseType:"chat",
+                sender:말한자,
+                data:무슨말,
+                uuid:
+            }
+            */
+
+            //전송 메시지 구성하기
+            ChatResponse chatResponse=new ChatResponse();
+            chatResponse.setResponseType("chat");
+            chatResponse.setSender(sender);
+            chatResponse.setData(data);
+            chatResponse.setUuid(uuid);
+            String json=objectMapper.writeValueAsString(chatResponse);
+
+
+            for(Session ss : userList){//전체 접속자를 대상으로...
+                for(Member member : room.getUserList()){ //지정된 방에 참여한 참여자를 대상으로..
+                    //웹소켓 Session에 심어놓은 Member를 꺼내자(비교하려고)
+                    Member obj=(Member)ss.getUserProperties().get("member");
+                    if(obj.getId().equals(member.getId())){
+                       ss.getAsyncRemote().sendText(json);
+                    }
+                }
+            }
 
         }else if(requestType.equals("exitRoom")) {
 
