@@ -119,7 +119,7 @@
                 <input type="text" placeholder="방제목 입력" name="roomName">
 
                 <button type="button" @click="createRoom()">방만들기</button>
-                <button type="button" @click="disconect()">접속끊기</button>
+                <button type="button" @click="disconnect()">접속끊기</button>
 
                 <ul>
                     <li>접속자 목록</li>
@@ -290,7 +290,9 @@
 
                 //서버와 접속 끊기
                 const disconnect = () => {
-                    ws.disconnect();
+                    if(ws && ws.readyState==WebSocket.OPEN){ //이미 연결이 존재할때만 끊기
+                        ws.close(1000 , "사용자 요청에 의한 접속 종료");
+                    }
                 }
 
                 connect();

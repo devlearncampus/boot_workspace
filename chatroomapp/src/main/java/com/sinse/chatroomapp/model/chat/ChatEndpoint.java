@@ -133,8 +133,11 @@ public class ChatEndpoint {
                 roomResponse.setMemberList(memberList);
                 roomResponse.setRoomList(roomList);
 
-
-                session.getAsyncRemote().sendText(objectMapper.writeValueAsString(roomResponse));
+                //방이 생성된 사실을 서버에 접속한 모든~~~~클라이언트가 알아야 하므로,
+                //브로드 케스팅의 대상이된다..
+                for(Session ss : userList) {
+                    ss.getAsyncRemote().sendText(objectMapper.writeValueAsString(roomResponse));
+                }
             }
 
 
@@ -260,8 +263,11 @@ public class ChatEndpoint {
         }
 
     }
+
+
     @OnClose
     public void onClose(Session session) throws Exception{
+        /*
         Member member=(Member)session.getUserProperties().get("member");
 
         memberList.remove(member);
@@ -292,6 +298,8 @@ public class ChatEndpoint {
 
         String json=objectMapper.writeValueAsString(closeResponse);
         session.getAsyncRemote().sendText(json);
+
+        */
     }
 
 
