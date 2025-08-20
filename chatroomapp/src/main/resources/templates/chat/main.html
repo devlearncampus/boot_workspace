@@ -119,6 +119,7 @@
                 <input type="text" placeholder="방제목 입력" name="roomName">
 
                 <button type="button" @click="createRoom()">방만들기</button>
+                <button type="button" @click="disconect()">접속끊기</button>
 
                 <ul>
                     <li>접속자 목록</li>
@@ -130,7 +131,7 @@
                 <div id="pop" v-show="flag">
                     <div id="content2">
                         <div id="content-header">{{roomName}}</div>
-                        <div id="content-body">{{message}}</div>
+                        <div id="content-body" style="white-space: pre-line;">{{message}}</div>
                     </div>
                     <div id="aside2">
                         <div id="aside-header">{{master}}</div>
@@ -236,6 +237,10 @@
                         }
                     }
 
+                    ws.onclose=(e)=>{
+                       console.log(e);
+                    }
+
                 }
 
 
@@ -283,9 +288,14 @@
                     msg.value="";//바인딩 변수이므로, ui에 자동반영
                 }
 
+                //서버와 접속 끊기
+                const disconnect = () => {
+                    ws.disconnect();
+                }
+
                 connect();
 
-                return {roomList, memberList,flag,roomName, master,userList, uuid, msg, message, connect, createRoom,openForm, sendMessage};
+                return {roomList, memberList,flag,roomName, master,userList, uuid, msg, message, connect, createRoom,openForm, sendMessage, disconnect};
             }
         }).mount("#app");
 

@@ -3,15 +3,9 @@ package com.sinse.chatroomapp.model.chat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sinse.chatroomapp.domain.Member;
-import com.sinse.chatroomapp.dto.ChatResponse;
-import com.sinse.chatroomapp.dto.EnterRoomResponse;
-import com.sinse.chatroomapp.dto.Room;
-import com.sinse.chatroomapp.dto.CreateRoomResponse;
+import com.sinse.chatroomapp.dto.*;
 import jakarta.servlet.http.HttpSession;
-import jakarta.websocket.EndpointConfig;
-import jakarta.websocket.OnMessage;
-import jakarta.websocket.OnOpen;
-import jakarta.websocket.Session;
+import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,7 +21,6 @@ public class ChatEndpoint {
 
     //접속자 명단
     private static Set<Session> userList =new HashSet<>();//서버측에서 필요한 접속자 정보
-
     private static Set<Member> memberList=new HashSet<>();//클라이언트에게 전달할 접속자 정보
     private static Set<Room> roomList=new HashSet<>();//클라이언트에게 전달한 전체 룸 정보
 
@@ -267,5 +260,39 @@ public class ChatEndpoint {
         }
 
     }
+    @OnClose
+    public void onClose(Session session) throws Exception{
+        Member member=(Member)session.getUserProperties().get("member");
+
+        memberList.remove(member);
+        userList.remove(session);
+
+        //현재 접속자가 참여하고 있었던 그 방에서 빼야 함
+        //roomList에서 Room 을 선택하여, 해당 Room 이 보유한 Set에서 현재 Member 제거
+        Room room=null;
+        Member mr=null;
+        for(Room r : roomList){
+            for(Member obj : r.getUserList()){
+                if(obj.getId().equals(member.getId())){ //이 사람이 머물고 있는 방이 발견되면...
+                    room=r;
+                    mr=obj;
+                    break;
+                }
+            }
+        }
+        room.getUserList().remove(mr);
+
+        //클라이언트에게 전송할 정보 구성 후, 보내기
+        //응답 정보 구성하여 전송
+        //총 접속자 목록, 총 방 목록
+        CloseResponse closeResponse=new CloseResponse();
+        closeResponse.setResponseType("close");
+        closeResponse.setMemberList(memberList);
+        closeResponse.setRoomList(roomList);
+
+        String json=objectMapper.writeValueAsString(closeResponse);
+        session.getAsyncRemote().sendText(json);
+    }
+
 
 }
