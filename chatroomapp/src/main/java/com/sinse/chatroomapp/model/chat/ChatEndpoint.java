@@ -178,6 +178,7 @@ public class ChatEndpoint {
 
             //룸에 들어있는 유저들 정보와 비교하여 같지 않은 경우에만 유저를 방에 추가
             boolean exists=false;
+
             for(Member obj : room.getUserList()){
                 if(member.getId().equals(obj.getId())){
                     exists=true;//중복 발견
@@ -185,7 +186,30 @@ public class ChatEndpoint {
                 }
             }
 
+            //룸에 등록되어 있지 않다면..
+            Member obj=null; //이 멤버가 곧 클라이언트에게 전송될 예정이므로, 보안상 중요한 부분은
+                            //제외 시키기 위해 별도의 Member를 선언한 것임
+            if(exists==false){
+                obj=new Member();
+                obj.setId(member.getId());
+                obj.setName(member.getName());
+                obj.setEmail(member.getEmail());
+                room.getUserList().add(obj);//채팅방 참여자로 등록
+            }
+            /*
+            {
+                responseType:"enterRoom",
+                room :{
+                }
+            }
+            */
 
+            //응답정보 만들기
+            EnterRoomResponse roomResponse=new EnterRoomResponse();
+            roomResponse.setResponseType("enterRoom");
+            roomResponse.setRoom(room);
+
+            session.getAsyncRemote().sendText(objectMapper.writeValueAsString(roomResponse));
 
         }else if(requestType.equals("exitRoom")) {
 

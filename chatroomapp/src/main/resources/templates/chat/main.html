@@ -118,12 +118,16 @@
                 <!--팝업 시작-->
                 <div id="pop" v-show="flag">
                     <div id="content2">
-                        <div id="content-header"></div>
+                        <div id="content-header">{{roomName}}</div>
                         <div id="content-body"></div>
                     </div>
                     <div id="aside2">
-                        <div id="aside-header"></div>
-                        <div id="aside-body"></div>
+                        <div id="aside-header">{{master}}</div>
+                        <div id="aside-body">
+                            <ul>
+                                <li v-for="user in userList" key="user.id"></li>
+                            </ul>
+                        </div>
                         <div id="aside-footer"></div>
                     </div>
                     <div id="footer">
@@ -150,6 +154,14 @@
                 let roomList=reactive([]);
                 let memberList=reactive([]);
                 let flag=ref(false);
+
+                //채팅방 상세내용 관련
+                let roomName=ref(""); //방제목
+                let master=ref("");//방 개설자
+                let userList=reactive([]); //참여자 목록
+                let uuid=ref(""); //방 고유값
+
+
                 let ws=null; //웹소켓 객체 선언
 
                 //서버에 요청
@@ -173,21 +185,29 @@
                         const responseJson=JSON.parse(e.data);
 
                         if(responseJson.responseType=="createRoom"){
-                            memberList.splice(0); //기존 배열 비우기
-
                             //접속자 명단
+                            memberList.splice(0); //기존 배열 비우기
                             responseJson.memberList.forEach(member=>{
                                 memberList.push(member);
                             });
 
                             //채팅방 목록
+                            roomList.splice(0);//기존 배열 비우기
                             if(responseJson.roomList !=null) {
                                 responseJson.roomList.forEach(room => {
                                     roomList.push(room);
                                 });
                             }
                         }else if(responseJson.responseType == "enterRoom"){
-                            console.log(responseJson.room);
+                            console.log(responseJson);
+                            roomName.value=responseJson.roomName; //방제
+                            master=responseJson.master; //방개설자
+                            //방 채팅 참여자 목록
+                            userList.splice(0);
+                            responseJson.userList.forEach(user=>{
+                               userList.push(user);
+                            });
+
                         }
 
                     }
@@ -229,7 +249,7 @@
 
                 connect();
 
-                return {roomList, memberList,flag, connect, createRoom,openForm};
+                return {roomList, memberList,flag,roomName, master,userList, uuid, connect, createRoom,openForm};
             }
         }).mount("#app");
 
