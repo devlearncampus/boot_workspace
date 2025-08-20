@@ -200,11 +200,13 @@
                             }
                         }else if(responseJson.responseType == "enterRoom"){
                             console.log(responseJson);
-                            roomName.value=responseJson.roomName; //방제
-                            master=responseJson.master; //방개설자
+
+                            roomName.value=responseJson.room.roomName; //방제
+                            master.value=responseJson.room.master; //방개설자
+
                             //방 채팅 참여자 목록
                             userList.splice(0);
-                            responseJson.userList.forEach(user=>{
+                            responseJson.room.userList.forEach(user=>{
                                userList.push(user);
                             });
 
