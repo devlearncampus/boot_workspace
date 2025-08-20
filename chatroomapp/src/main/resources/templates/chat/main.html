@@ -86,6 +86,17 @@
             width:100%;
             height:50px;
             background:rosybrown;
+            line-height: 50px;
+        }
+        #footer input{
+            width:80%;
+            height:35px;
+            font-size:17px;
+        }
+        #footer button{
+            width:10%;
+            height:35px;
+            font-size:17px;
         }
     </style>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -125,13 +136,16 @@
                         <div id="aside-header">{{master}}</div>
                         <div id="aside-body">
                             <ul>
-                                <li v-for="user in userList" key="user.id"></li>
+                                <li v-for="user in userList" key="user.id">{{user.id}}</li>
                             </ul>
                         </div>
-                        <div id="aside-footer"></div>
+                        <div id="aside-footer">
+                            <button type="button">방나가기</button>
+                        </div>
                     </div>
                     <div id="footer">
-
+                        <input type="text" v-model="msg">
+                        <button type="button" @click="sendMessage()">Send</button>
                     </div>
                 </div>
 
@@ -160,6 +174,7 @@
                 let master=ref("");//방 개설자
                 let userList=reactive([]); //참여자 목록
                 let uuid=ref(""); //방 고유값
+                let msg=ref(""); //전송할 채팅 메시지
 
 
                 let ws=null; //웹소켓 객체 선언
@@ -203,6 +218,7 @@
 
                             roomName.value=responseJson.room.roomName; //방제
                             master.value=responseJson.room.master; //방개설자
+                            uuid.value=responseJson.room.uuid; //uuid
 
                             //방 채팅 참여자 목록
                             userList.splice(0);
@@ -249,9 +265,21 @@
                     request(JSON.stringify(payload));
                 }
 
+                //서버에 메시지 보내기
+                const sendMessage = () => {
+                    let payload={
+                        requestType:"chat",
+                        sender:$("input[name='id']").val(),
+                        data:msg.value,
+                        uuid:uuid.value
+                    }
+                    request(JSON.stringify(payload));
+                    msg.value="";//바인딩 변수이므로, ui에 자동반영
+                }
+
                 connect();
 
-                return {roomList, memberList,flag,roomName, master,userList, uuid, connect, createRoom,openForm};
+                return {roomList, memberList,flag,roomName, master,userList, uuid, msg, connect, createRoom,openForm, sendMessage};
             }
         }).mount("#app");
 

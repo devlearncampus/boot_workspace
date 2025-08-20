@@ -211,9 +211,10 @@ public class ChatEndpoint {
 
             session.getAsyncRemote().sendText(objectMapper.writeValueAsString(roomResponse));
 
-        }else if(requestType.equals("exitRoom")) {
+        }else if(requestType.equals("chat")){
+            log.debug("채팅 요청 받음");
 
-        }else if(requestType.equals("chat")) {
+        }else if(requestType.equals("exitRoom")) {
 
         }
 
