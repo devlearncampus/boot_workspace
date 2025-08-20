@@ -114,7 +114,7 @@ public class ChatEndpoint {
                 obj.setEmail(member.getEmail());
 
                 users.add(obj);//방을 개설한 주인을 참여자로 등록
-                room.setUsers(users);
+                room.setUserList(users);
 
                 roomList.add(room);
 
@@ -145,44 +145,47 @@ public class ChatEndpoint {
 
 
         }else if(requestType.equals("enterRoom")) {
-            log.debug("방입장 처리 요청 처리 ");
-
+            log.debug("방입장 요청 처리 ");
+            /*
+            1) 요청한 클라이언트를 선택한 방에 밀어넣기!!
+                - 넘겨받은 uuid를 이용하여 방선택
+                - 해당 Roomd이 보유한 Set 에 클라이언트를 참여자 등록(중복을 피하여..)
+            */
             String uuid=jsonNode.get("uuid").asText();
 
-            /*전통적인 방식으로처리 할 경우*/
-            Room result=null;
+            //클라이언트가 전송한 uuid를 이용하여 모든 방을 탐색한후, uuid 가 일치하는 방을 선택
+            Room room=null;
             for(Room r : roomList){
-                if(uuid.equals(r.getUUID())){
-                    result=r;
+                if(uuid.equals(r.getUUID())){ //발견되면..
+                    room=r;
                     break;
                 }
             }
             /*
-            Stream api를 이용할 경우
-            1) 필터링, 매핑, 집계 등 데이터 처리 시 적합
+            선언적 프로그래밍 방식으로도 위의 작업을 진행할 수 있다..
+            */
+            /*
             roomList.stream()
-                .filter(r -> uuid.equals(r.getUUID())) 조건에 맞는 요소만 추림
-                .findFirst() 조건에 맞는 첫 번째 요소 반환
-                .orElse(null); 없으면 null 리턴
+                    .filter(r -> uuid.equals(r.getUUID())) // 조건에 맞는 요소만 추림
+                    .findFirst() //조건에 맞는 첫번째 요소 반환
+                    .orElse(null); //없으면 null 리턴
             */
 
-            //찾아낸 Room 에 같은 유저가 존재하지 않을때만 Set에 추가한다
+            //찾아낸 Room 안에 채팅 참여자로 등록(등록되어 있지 않은 사람만...)
+
+            //현재 클라이언트와 연결된 session에 담겨진 회원정보를 추출
             Member member=(Member)session.getUserProperties().get("member");
 
-            for(Member obj : result.getUsers()){
+            //룸에 들어있는 유저들 정보와 비교하여 같지 않은 경우에만 유저를 방에 추가
+            boolean exists=false;
+            for(Member obj : room.getUserList()){
                 if(member.getId().equals(obj.getId())){
-                    
+                    exists=true;//중복 발견
+                    break;
                 }
             }
 
 
-
-            //응답 정보 만들기
-            EnterRoomResponse roomResponse=new EnterRoomResponse();
-            roomResponse.setResponseType("enterRoom");
-            roomResponse.setRoom(result); //룸대입
-
-            session.getAsyncRemote().sendText(objectMapper.writeValueAsString(roomResponse));
 
         }else if(requestType.equals("exitRoom")) {
 

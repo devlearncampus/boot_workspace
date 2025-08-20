@@ -22,6 +22,7 @@
             height: 800px;
             background-color: #26ff00;
             float: left;
+            position: relative;
         }
         .room{
             width:186px;
@@ -47,37 +48,33 @@
         팝업 디자인
         */
         #pop{
-            width:600px;
-            height:600px;
+            width:1000px;
+            height:800px;
             background: yellow;
             margin: auto;
             border:2px solid red;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-
         }
         #content2{
-            width:400px;
-            height:550px;
+            width:800px;
+            height:750px;
             background:goldenrod;
             float: left;
         }
         #aside2{
-            width:100px;
-            height:550px;
+            width:200px;
+            height:750px;
             background:chartreuse;
             float: left;
         }
         #aside-header{
             width:200px;
-            height: 50px;
+            height:50px;
             background:darkgoldenrod;
         }
         #aside-body{
             width:200px;
-            height:450px;
+            height:650px;
             background:aliceblue;
         }
         #aside-footer{
@@ -98,22 +95,7 @@
 <body>
     <div id="app">
         <div id="wraper">
-            <!--팝업 시작-->
-            <div id="pop" v-show="flag">
-                <div id="content2">
-                    <div id="content-header"></div>
-                    <div id="content-body"></div>
-                </div>
-                <div id="aside2">
-                    <div id="aside-header"></div>
-                    <div id="aside-body"></div>
-                    <div id="aside-footer"></div>
-                </div>
-                <div id="footer">
 
-                </div>
-            </div>
-            <!--팝업 끝 -->
             <div id="aside">
 
                 <div th:if="${session.member !=null}">
@@ -133,12 +115,30 @@
                 </ul>
             </div>
             <div id="content">
-                <div class="room" v-for="room in roomList">
+                <!--팝업 시작-->
+                <div id="pop" v-show="flag">
+                    <div id="content2">
+                        <div id="content-header"></div>
+                        <div id="content-body"></div>
+                    </div>
+                    <div id="aside2">
+                        <div id="aside-header"></div>
+                        <div id="aside-body"></div>
+                        <div id="aside-footer"></div>
+                    </div>
+                    <div id="footer">
+
+                    </div>
+                </div>
+
+                <!--팝업 끝 -->
+                <div class="room" v-for="room in roomList" key="room.uuid">
                     <div class="room-header">
                         <a href="" @click.prevent="openForm(room.uuid)">{{room.roomName}}</a>
                     </div>
                     <div class="room-body"></div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -217,6 +217,9 @@
                 const openForm = (roomId) => {
                     flag.value=!flag.value;
 
+                    //alert("내가 원하는 방은 "+roomId);
+
+                    //웹소켓 서버에 방 상세정보를 요청
                     let payload={
                         requestType:"enterRoom",
                         uuid:roomId
