@@ -1,50 +1,25 @@
 package com.sinse.bootwebsocket.model.chat;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.*;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+//Spring 에서 지원하는 WebSocket 은 여기서 Endpoint 지정할 수 있고,
+//또한 클라이언트의 요청을 처리하는 객체를 여기에서 등록해야 한다
+@RequiredArgsConstructor //매개변수가 있는 생성자를 자동 생성해주는 롬복의 기능
+                         //   public WebSocketConfig(ChatWebSocketHandler webSocketHandler)
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
 
-    private final ChatWebSocketHandler handler;
-    private final HttpSessionInterceptor interceptor;
+    //생성자가 자동으로 컴파일 시점에 생성되므로, @autowired 필요없음
+    private final ChatWebSocketHandler webSocketHandler;
 
-    //STOMP 를 사용하기 위한 설정
-    private final HttpSessionToWsAttributesInterceptor httpSessionToWsAttributesInterceptor;
-
-    public WebSocketConfig(ChatWebSocketHandler handler,HttpSessionInterceptor interceptor, HttpSessionToWsAttributesInterceptor httpSessionToWsAttributesInterceptor ) {
-        this.handler = handler;
-        this.interceptor = interceptor;
-        this.httpSessionToWsAttributesInterceptor = httpSessionToWsAttributesInterceptor;
-    }
-
-    /*
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(handler, "/ws/chat")
-                .addInterceptors(interceptor,httpSessionToWsAttributesInterceptor)
+        registry.addHandler(webSocketHandler, "/ws")
                 .setAllowedOrigins("*");
-    }
-    */
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // 클라이언트 접속 엔드포인트 (ws://.../stomp-chat)
-        registry.addEndpoint("/stomp-chat")
-                .addInterceptors(httpSessionToWsAttributesInterceptor)
-                .setAllowedOriginPatterns("*")
-                .withSockJS(); // 필요시 제거 가능
-    }
-
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // 서버 → 클라이언트 브로드캐스트 대상(prefix)
-        registry.enableSimpleBroker("/topic", "/queue");
-        // 클라이언트 → 서버 앱 목적지(prefix)
-        registry.setApplicationDestinationPrefixes("/app");
-        // 사용자별 큐(prefix; convertAndSendToUser용)
-        registry.setUserDestinationPrefix("/user");
     }
 }

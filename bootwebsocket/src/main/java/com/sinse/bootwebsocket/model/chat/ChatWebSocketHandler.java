@@ -1,44 +1,46 @@
 package com.sinse.bootwebsocket.model.chat;
 
-import com.sinse.bootwebsocket.domain.Member;
-import jakarta.servlet.http.HttpSession;
+//javaee 순수 api로 ServerEndpoint를 구현했던 클래스와 같은 역할을 수행하는 클래스
+//단, 스프링기반 api로 구현해본다
+
+import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 @Slf4j
 @Component
-public class ChatWebSocketHandler extends TextWebSocketHandler {
-    //@OnOpen 대체
+public class ChatWebSocketHandler implements WebSocketHandler {
+
+    //javaee api의 @OnOpen과 동일
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.debug("접속됨");
-
-        HttpSession httpSession=(HttpSession)session.getAttributes().get("HTTP_SESSION");
-        Member member = (Member)session.getAttributes().get("member");
-        log.debug("회원 이름은 "+member.getName());
-
+        log.debug("새 클라이언트가 연결됨", session.getId());
     }
 
-    //@OnMessage 대체
+    //javaee api의 @OnMessage와 동일
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        log.debug("메시지 받음");
-
+    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+        log.debug("클라이언트가 보낸 메시지 "+message.getPayload().toString());
     }
 
-    //@OnClose 대체
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        log.debug("접속 종료");
-    }
-
-    //@OnError 대체
+    //javaee api의 @OnError와 동일
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        log.debug("에러발생");
+
+    }
+
+    //javaee api의 @OnClose와 동일
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+
+    }
+
+    @Override
+    public boolean supportsPartialMessages() {
+        return false;
     }
 }
