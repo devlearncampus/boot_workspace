@@ -27,7 +27,29 @@
 
         <h3>총 접속자</h3>
         <ul>
-            <li v-for="user in users"></li>
+            <li v-for="user in users">{{user}}</li>
+        </ul>
+
+        <h3>메시지 로그</h3>
+        <ul>
+            <li v-for="msg in messages">{{msg.sender}}님의 말: {{msg.content}}</li>
+        </ul>
+
+        <div>
+            <input type="text" v-model="roomName" placeholder="방이름 입력">
+            <button type="button" @click="createRoom()">방만들기</button>
+        </div>
+
+        <h3>방목록</h3>
+        <ul>
+            <li v-for="room in rooms" :key="room.roomId">
+                <b>{{room.roomName}}</b> (참여자 수: {{room.users.length}})
+                <ul>
+                    <li v-for="user in room.users">{{user}}</li>
+                    <button type="button" @click="enterRoom(room.roomId)">참여하기</button>
+                    <button type="button" @click="leaveRoom(room.roomId)">나가기</button>
+                </ul>
+            </li>
         </ul>
     </div>
 
@@ -41,8 +63,18 @@
                 const connected = ref(false); //접속 여부 판단
                 const message = ref(""); //입력중인 채팅 메시지
                 const users=ref([]); //전체 접속자 목록
+                const messages = ref([]); //채팅 메시지 목록
+                const roomName = ref(""); //새로 만들 방 이름
+                const rooms=ref([]); //방 목록
 
                 let socket=null;
+
+                /*----------------------------------------
+                공통 메시지 보내기
+                ----------------------------------------*/
+                const send = (payload)=>{
+                    socket.send(JSON.stringify(payload));
+                }
 
                 /*----------------------------------------
                  접속: 서버와 연결
@@ -60,20 +92,30 @@
                     socket.onopen = () => {
                         //성공을 보장한 코드이므로  바인딩 변수 connected=true로 놓자 , 디자인 자동 반영
                         connected.value = true;
+
+                        //서버에 '나 접속했어' 라고 알리기
+                        send({
+                            type:"CONNECT",
+                            sender:username.value
+                        });
+
                     }
 
                     //서버로부터 메시지를 받을때 실행되는 콜백
-                    socket.onmessage = (event)=>{
+                    socket.onmessage = (e)=>{
+                        console.log("서버가 보낸 메시지", e.data);
+                        let json = JSON.parse(e.data);
 
+                        if(json.destination=="/users"){ //서버가 보낸 정보가 유저목록임을 알 수 있다..
+                            users.value=json.body;
+                        }else if(json.destination=="/messages"){
+                            messages.value.push(json.body);
+                        }else if(json.destination=="/rooms"){
+                            rooms.value=json.body;
+                        }
                     }
                 }
 
-                /*----------------------------------------
-                 채팅 메시지 보내기
-                ----------------------------------------*/
-                const send = (payload)=>{
-                    socket.send(JSON.stringify(payload));
-                }
 
 
                 /*----------------------------------------
@@ -91,16 +133,68 @@
                     }
                 }
 
+                /*----------------------------------------
+                 방만들기
+                ----------------------------------------*/
+                const createRoom = () => {
+                    if(roomName.value.trim()){ //방 이름이 비어있지 않다면..
+                        send({
+                           type:"ROOM_CREATE",
+                           sender:username.value,
+                           content:roomName.value
+                        });
+                        roomName.value = ""; //방이름 초기화
+                    }
+                }
+
+                /*----------------------------------------
+                 방 참여
+                ----------------------------------------*/
+                const enterRoom = (roomId)=>{
+                    send({
+                        type:"ROOM_ENTER",
+                        sender:username.value,
+                        roomId:roomId
+                    });
+                }
+
+                /*----------------------------------------
+                 방 나가기
+                ----------------------------------------*/
+                const leaveRoom = (roomId)=>{
+                    send({
+                        type:"ROOM_LEAVE",
+                        sender:username.value,
+                        roomId:roomId
+                    });
+                }
 
                 /*----------------------------------------
                  접속해제
                 ----------------------------------------*/
                 const disconnect = () => {
                     //서버에 '나 접속 끊을게' 알리기
+                    send({
+                        type:"DISCONNECT",
+                        sender:username.value,
+                    });
+
                     socket.close();
+                    //소켓이 닫힌 상태에서는 서버의 브로드 케스트를 받을 수 없기 때문에
+                    //현재 접속자 목록에서 나를 수동으로 제거해야 한다
+                    let newUsers=[];
+
+                    //기존 유저목록이 들어있는 배열에서, 현지 사용자를 제거한 후
+                    //최종 배열을 생성
+                    for(let i=0;i<users.length;i++){
+                        if( users.value[i] !=username.value) {
+                            newUsers.push(users.value[i]);
+                        }
+                    }
+                    users.value=newUsers
                 }
 
-                return {username, connected, connect,message,users, sendMessage, disconnect};
+                return {username, connected, connect,message,users, messages,roomName,rooms, sendMessage, disconnect, createRoom, enterRoom, leaveRoom };
             }
         }).mount("#app");
     </script>
