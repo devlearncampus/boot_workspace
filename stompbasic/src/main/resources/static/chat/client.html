@@ -60,6 +60,11 @@
         setup(){
             const username=ref("");
             const connected=ref(false);
+            const users=ref([]);
+            const message=ref("");
+            const messages=ref([]);
+            const roomName=ref(''); //방 제목
+            const rooms=ref([]);
 
 
             let stompClient=null; //STOMP 클라이언트 객체
@@ -82,8 +87,20 @@
 
                     //접속과 동시에 원하는 채널을 구독하자
                     stompClient.subscribe("/topic/users", (msg)=>{
-                        console.log("접속과 동시에 구독 메시지 받기",msg);
+                        console.log("접속과 동시에 구독 메시지 받기",msg.body);
+                        users.value=JSON.parse(msg.body);
                     });
+
+                    //채팅 메시지 구독
+                    stompClient.subscribe("/topic/messages", (msg)=>{
+                        messages.value.push(JSON.parse(msg.body));
+                    });
+
+                    //방 목록을 받기 위한 채널 구독
+                    stompClient.subscribe("/topic/rooms", (msg)=>{
+                        rooms.value=JSON.parse(msg.body);
+                    });
+
 
                     //서버에 메시지 보내기
                     stompClient.send("/app/connect", {}, JSON.stringify({sender:username.value}));
@@ -91,7 +108,39 @@
                 });
             }
 
-            return {username, connected,connect}
+            //메시지 전송
+            const sendMessage = () => {
+                //메시지 입력박스가 비어있지 않다면..
+                if(message.value.trim()){
+                   stompClient.send("/app/chat.send", {}, JSON.stringify({
+                       sender:username.value, //보낸 사람
+                       content:message.value //보낼 내용
+                   }) );
+                }
+            }
+
+            //방 만들기
+            const createRoom = () => {
+
+                if(roomName.value.trim()){ //방제목을 입력한 경우만..
+                    stompClient.send("/app/room.create",{}, JSON.stringify({
+                        sender:username.value, //요청자 이름
+                        content:roomName.value //방제목
+                    }));
+                    roomName.value=""; //입력값 초기화
+                }
+            }
+
+            //방 참여하기
+            const enterRoom=(roomId)=>{
+                stompClient.send("/app/room.enter", {}, JSON.stringify({
+                    sender:username.value,
+                    roomId:roomId
+                }))
+            }
+
+
+            return {username, connected, users, message, messages, roomName, rooms, connect,sendMessage, createRoom, enterRoom}
         }
     }).mount("#app");
 </script>

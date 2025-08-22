@@ -1,19 +1,27 @@
 package com.sinse.stompbasic.controller;
 
 import com.sinse.stompbasic.dto.ChatMessage;
+import com.sinse.stompbasic.dto.ChatRoom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Controller
 public class ChatController {
 
+    //서버에 접속한 유저 목록
     private Set<String> connectedUsers=new ConcurrentHashMap<>().newKeySet();
+
+    //서버에 생성된 방목록
+    private Map<String, ChatRoom> roomStorage=new ConcurrentHashMap<>();
 
     /*클라이언트의 접속 요청 처리
      클라이언트가 7777/app/connect 로 접속하여 이 메서드 실행
@@ -33,6 +41,42 @@ public class ChatController {
         return connectedUsers;
     }
 
+    //클라이언트의 메시지 전송 처리
+    @MessageMapping("/chat.send")
+    @SendTo("/topic/messages") //  /topic/messages 를 구독한 클라이언트들에게 브로드케스팅
+    public ChatMessage send(ChatMessage chatMessage){
+        return chatMessage;
+    }
+
+    //방 만들기 메시지 전송 처리
+    @MessageMapping("/room.create")
+    @SendTo("/topic/rooms") //이 채널을 구독한 클라이언트에게 결과를 응답정보로 보내기
+    public Collection<ChatRoom> createRoom(ChatMessage chatMessage){
+
+        ChatRoom chatRoom=new ChatRoom();
+        String roomId= UUID.randomUUID().toString();
+        chatRoom.setRoomId(roomId); //고유ID
+        chatRoom.setRoomName(chatMessage.getContent());//방이름
+
+        //생성된 방을, 목록에 추가
+        roomStorage.put(roomId, chatRoom);
+
+        return roomStorage.values();
+    }
+
+    //방 참여 요청 메시지 처리
+    @MessageMapping("/room.enter")
+    @SendTo("/topic/rooms")
+    public Collection<ChatRoom> enterRoom(ChatMessage chatMessage){
+        //방을 검색하여, 발견된 방의 Set에 유저명넣기
+        ChatRoom chatRoom = roomStorage.get(chatMessage.getRoomId());
+
+        if(chatRoom != null){ //방이 존재한다면,
+            chatRoom.getUsers().add(chatMessage.getSender());
+        }
+
+        return roomStorage.values();
+    }
 }
 
 
