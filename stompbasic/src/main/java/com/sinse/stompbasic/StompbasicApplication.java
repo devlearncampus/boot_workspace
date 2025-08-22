@@ -1,13 +1,13 @@
-package com.sinse.stompchat;
+package com.sinse.stompbasic;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class StompChatApplication {
+public class StompbasicApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(StompChatApplication.class, args);
+        SpringApplication.run(StompbasicApplication.class, args);
     }
 
 }

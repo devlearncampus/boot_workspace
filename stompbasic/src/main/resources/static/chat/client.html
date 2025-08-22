@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <h2>Spring WebSocket 기반 채팅 </h2>
+
+    <!--DB 연동하지 않고, 사용자를 직접 입력하여 채팅진행 -->
+    <div v-if="!connected">
+        <input type="text" v-model="username" placeholder="채팅 사용자명 입력">
+        <button type="button" @click="connect()">웹소켓서버 접속</button>
+    </div>
+    <div v-else>
+        <p><b>{{username}}</b>님 접속중</p>
+        <button type="button" @click="disconnect()">접속종료</button>
+
+        <div>
+            <input type="text" v-model="message" @keyup.enter="sendMessage()" placeholder="메시지를 입력하세요">
+            <button type="button" @click="sendMessage()">메시지 전송</button>
+        </div>
+    </div>
+
+    <h3>총 접속자</h3>
+    <ul>
+        <li v-for="user in users">{{user}}</li>
+    </ul>
+
+    <h3>메시지 로그</h3>
+    <ul>
+        <li v-for="msg in messages">{{msg.sender}}님의 말: {{msg.content}}</li>
+    </ul>
+
+    <div>
+        <input type="text" v-model="roomName" placeholder="방이름 입력">
+        <button type="button" @click="createRoom()">방만들기</button>
+    </div>
+
+    <h3>방목록</h3>
+    <ul>
+        <li v-for="room in rooms" :key="room.roomId">
+            <b>{{room.roomName}}</b> (참여자 수: {{room.users.length}})
+            <ul>
+                <li v-for="user in room.users">{{user}}</li>
+                <button type="button" @click="enterRoom(room.roomId)">참여하기</button>
+                <button type="button" @click="leaveRoom(room.roomId)">나가기</button>
+            </ul>
+        </li>
+    </ul>
+</div>
+<script>
+    const {createApp, ref} = Vue;
+
+    createApp({
+        setup(){
+            const username=ref("");
+            const connected=ref(false);
+
+
+            let stompClient=null; //STOMP 클라이언트 객체
+
+            //웹소켓 서버에 접속 시도
+            const connect =()=>{
+                //채팅 아이디를 입력했을때만 접속 시도
+                if(!username.value.trim() ){
+                    alert("채팅 아이디를 입력하세요");
+                    return; //메서드 종료
+                }
+                //우리의 경우 웹소켓 위에 STOMP를 얹혀 사용할 예정이므로,
+                //반드시 WebSocket 객체가 필요함
+                const socket=new WebSocket("ws://localhost:7777/ws");
+                stompClient = Stomp.over(socket);//WebSocket 위에 STOMP 프로토콜 올리기
+
+                //서버와 STOMP 연결 시도(헤더 정보 없이)
+                stompClient.connect({}, ()=>{
+                    connected.value=true;//바인딩 변수를 true로 놓아야 화면전환
+
+                    //접속과 동시에 원하는 채널을 구독하자
+                    stompClient.subscribe("/topic/users", (msg)=>{
+                        console.log("접속과 동시에 구독 메시지 받기",msg);
+                    });
+
+                    //서버에 메시지 보내기
+                    stompClient.send("/app/connect", {}, JSON.stringify({sender:username.value}));
+
+                });
+            }
+
+            return {username, connected,connect}
+        }
+    }).mount("#app");
+</script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
