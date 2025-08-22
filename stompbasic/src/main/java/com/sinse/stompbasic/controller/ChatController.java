@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Collection;
 import java.util.Map;
@@ -22,6 +24,17 @@ public class ChatController {
 
     //서버에 생성된 방목록
     private Map<String, ChatRoom> roomStorage=new ConcurrentHashMap<>();
+
+
+    /*favicon 처리
+    * 1) static 디렉토리에 실제로 favicon 이미지를 보유
+    * 2) 컨트롤러에 요청을 처리하되, 이미지를 반환하지 않고 void
+    * */
+    @GetMapping("favicon.ico")
+    @ResponseBody
+    public void favicon(){
+    }
+
 
     /*클라이언트의 접속 요청 처리
      클라이언트가 7777/app/connect 로 접속하여 이 메서드 실행
@@ -77,6 +90,27 @@ public class ChatController {
 
         return roomStorage.values();
     }
+
+    //방나가기 요청 메시지 처리
+    @MessageMapping("/room.leave")
+    @SendTo("/topic/rooms")
+    public Collection<ChatRoom> leaveRoom(ChatMessage chatMessage){
+        //서버의 방 목록을 하나를 찾아내서, 그 안의 Set 유저정보에서 sender 제거
+        ChatRoom room=roomStorage.get(chatMessage.getRoomId());
+
+        if(room != null){
+            room.getUsers().remove(chatMessage.getSender());
+        }
+        return roomStorage.values();
+    }
+
+    //방목록 요청 메시지 처리
+    @MessageMapping("/room.list")
+    @SendTo("/topic/rooms")
+    public Collection<ChatRoom> listRoom(ChatMessage chatMessage){
+        return roomStorage.values();
+    }
+
 }
 
 

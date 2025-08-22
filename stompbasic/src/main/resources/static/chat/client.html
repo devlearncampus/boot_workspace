@@ -105,6 +105,8 @@
                     //서버에 메시지 보내기
                     stompClient.send("/app/connect", {}, JSON.stringify({sender:username.value}));
 
+                    //접속과 동시에, 방목록을 요청
+                    getRooms();
                 });
             }
 
@@ -117,6 +119,11 @@
                        content:message.value //보낼 내용
                    }) );
                 }
+            }
+
+            //방 목록 구하기
+            const getRooms=()=>{
+                stompClient.send("/app/room.list", {}, JSON.stringify({sender:username.value}));
             }
 
             //방 만들기
@@ -139,8 +146,16 @@
                 }))
             }
 
+            //방 나가기
+            const leaveRoom = (roomId)=>{
+                stompClient.send("/app/room.leave", {}, JSON.stringify({
+                    sender:username.value,
+                    roomId:roomId
+                }));
+            }
 
-            return {username, connected, users, message, messages, roomName, rooms, connect,sendMessage, createRoom, enterRoom}
+
+            return {username, connected, users, message, messages, roomName, rooms, connect,sendMessage, getRooms, createRoom, enterRoom, leaveRoom}
         }
     }).mount("#app");
 </script>
