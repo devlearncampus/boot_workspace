@@ -54,6 +54,15 @@ public class ChatController {
         return connectedUsers;
     }
 
+    //접속 해제 메시지 요청 처리
+    @MessageMapping("/disconnect")
+    @SendTo("/topic/users")
+    public Set<String> disconnect(ChatMessage chatMessage){
+        connectedUsers.remove(chatMessage.getSender());
+        return connectedUsers;
+    }
+
+
     //클라이언트의 메시지 전송 처리
     @MessageMapping("/chat.send")
     @SendTo("/topic/messages") //  /topic/messages 를 구독한 클라이언트들에게 브로드케스팅

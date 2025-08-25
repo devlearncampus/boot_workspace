@@ -154,8 +154,34 @@
                 }));
             }
 
+            //접속 종료
+            const disconnect = () => {
+                //종료로 인하여 웹소켓이 끊기면 서버가 보내준 구독 브로드케스팅 정보 조차 받을 수 없다.
 
-            return {username, connected, users, message, messages, roomName, rooms, connect,sendMessage, getRooms, createRoom, enterRoom, leaveRoom}
+                //서버에 '나 나갈래' 알림 보내기
+                stompClient.send("/app/disconnect", {}, JSON.stringify({
+                    sender:username.value,
+                }))
+
+                //이미 접속이 끊어진 이후엔 브로드케스팅을 받지 못하므로,
+                //나의 정보를 스스로 제거
+                //참여자 목록을 다시 구성
+                let newUsers=[];
+                for(let i=0;i<users.value.length;i++){
+                    //접속자 명단과, 현재 나와비교, 나 이외 사람들을 새로운 배열에 넣기
+                    if(users.value[i] != username.value ) {
+                        newUsers.push(users.value[i]);
+                    }
+                }
+                users.value=newUsers;
+
+                stompClient.disconnect(); //모든 사용자에게 나갔음을 알렸으므로, 나 죽기
+
+                connected.value=false; //뷰화면 갱신을 위해...
+            }
+
+
+            return {username, connected, users, message, messages, roomName, rooms, connect,sendMessage, getRooms, createRoom, enterRoom, leaveRoom,disconnect}
         }
     }).mount("#app");
 </script>
