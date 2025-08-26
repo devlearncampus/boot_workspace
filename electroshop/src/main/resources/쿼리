@@ -1,0 +1,6 @@
+create table admin(
+admin_id int primary key auto_increment
+, secure_id varchar(20)
+, password varchar(64)
+, name varchar(20)
+);
