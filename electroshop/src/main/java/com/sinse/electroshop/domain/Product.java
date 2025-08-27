@@ -18,5 +18,4 @@ public class Product {
     @ManyToOne
     @JoinColumn(name="store_id", nullable=false)
     private Store store;
-
 }
