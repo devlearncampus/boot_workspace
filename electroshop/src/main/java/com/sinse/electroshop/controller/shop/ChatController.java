@@ -31,7 +31,13 @@ public class ChatController {
     --------------------------------------------*/
     @MessageMapping("/connect") //   localhost:9999/app/conntect
     public Set<String> connect(ChatMessage message) {
-        log.debug("클라이언트 접속함");
+
+        log.debug("클라이언트 접속과 동시에 보낸 메시지 "+message.getContent());
+
+        //HttpSession 에서 사용자 로그인 정보인 Member를 꺼내보자
+        //STOMP 기반으로 HttpSession을 꺼내려면 인터셉터 객체를 구현 및 등록해야 함
+
+
         return null;
     }
 }
