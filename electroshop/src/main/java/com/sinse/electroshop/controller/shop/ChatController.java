@@ -1,13 +1,17 @@
 package com.sinse.electroshop.controller.shop;
 
+import com.sinse.electroshop.domain.Member;
 import com.sinse.electroshop.websocket.dto.ChatMessage;
 import com.sinse.electroshop.websocket.dto.ChatRoom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -30,15 +34,50 @@ public class ChatController {
     접속과 동시에 해당 상품과 관련된 방하나를 선택하고, 그 방에 참여한 고객목록을 반환
     --------------------------------------------*/
     @MessageMapping("/connect") //   localhost:9999/app/conntect
-    public Set<String> connect(ChatMessage message) {
+    @SendTo("/topic/users")
+    public Set<String> connect(ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
 
+        //SimpMessageHeaderAccessor 객체를 이용하면 WebSocket의 Session 에 들어있는 정보를 추출
+        Member member=(Member)headerAccessor.getSessionAttributes().get("member");
+        log.debug("웹소켓 Session에서 꺼낸 정보는 "+member.getName());
         log.debug("클라이언트 접속과 동시에 보낸 메시지 "+message.getContent());
 
         //HttpSession 에서 사용자 로그인 정보인 Member를 꺼내보자
         //STOMP 기반으로 HttpSession을 꺼내려면 인터셉터 객체를 구현 및 등록해야 함
 
+        //1) 내가 참여하지 않았을 경우 이 상품과 관련된 방에 참여하기
+        boolean exist=false;
+        ChatRoom selectedRoom=null;
 
-        return null;
+        for(ChatRoom chatRoom : roomStorage.values()){
+            for(String id : chatRoom.getCustomers()){
+                if(id.equals(member.getId())){ //동일하다면
+                    exist=true;
+                    selectedRoom=chatRoom;
+                    break;
+                }
+            }
+        }
+
+        if(!exist){ //존재하지 않으면 현재 접속자를 명단에 추가
+            //발견된 방도 없고, 해당 상품으로 생성된 룸도 존재하지 않는다면, 억지로 만든다.(추후 관리자가 만들어야 함)
+            ChatRoom chatRoom=null;
+            if(exist==false){
+                if(roomStorage.containsKey(message.getContent())==false){
+                    chatRoom=new ChatRoom();
+                    chatRoom.setProduct_id(Integer.parseInt(message.getContent()));
+                    chatRoom.setRoomId(UUID.randomUUID().toString());
+                    roomStorage.put(chatRoom.getRoomId(), chatRoom);
+                }
+            }else{
+                chatRoom=selectedRoom;
+            }
+            selectedRoom.getCustomers().add(member.getId());
+        }
+
+        //2) 내가 참여한 방과 같은 방에 있는 유저들 목록을 얻어와 @SendTo 로 보내기..
+
+        return selectedRoom.getCustomers();
     }
 }
 

@@ -488,8 +488,15 @@
 
 							//접속 후, 서버에 메시지 보내기
 							stompClient.send("/app/connect",{},JSON.stringify({
-								content:"상품의pk"
-							}) );
+								content:$("#product_id").val()
+							}));
+
+							//방 참여자 구독하기
+							stompClient.subscribe("/topic/users", (msg)=>{
+								console.log("채팅 참여자는 ",msg.body);
+							})
+
+
 						});
 					}
 
