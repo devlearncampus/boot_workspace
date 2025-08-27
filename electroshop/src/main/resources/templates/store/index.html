@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AdminLTE 3 | Dashboard</title>
 
-  <th:block th:replace="~{admin/fragments/head_link :: head_link}"></th:block>
+  <th:block th:replace="~{store/fragments/head_link :: head_link}"></th:block>
   </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
   <!-- Preloader -->
-  <th:block th:replace="~{admin/fragments/preloader :: preloader}"></th:block>
+  <th:block th:replace="~{store/fragments/preloader :: preloader}"></th:block>
   <!-- Navbar -->
-  <th:block th:replace="~{admin/fragments/navbar :: navbar}"></th:block>
+  <th:block th:replace="~{store/fragments/navbar :: navbar}"></th:block>
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
-  <th:block th:replace="~{admin/fragments/sidebar :: sidebar}"></th:block>
+  <th:block th:replace="~{store/fragments/sidebar :: sidebar}"></th:block>
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -171,7 +171,7 @@
                       <span class="direct-chat-timestamp float-right">23 Jan 2:00 pm</span>
                     </div>
                     <!-- /.direct-chat-infos -->
-                    <img class="direct-chat-img" src="dist/img/user1-128x128.jpg" alt="message user image">
+                    <img class="direct-chat-img" src="/admin/dist/img/user1-128x128.jpg" alt="message user image">
                     <!-- /.direct-chat-img -->
                     <div class="direct-chat-text">
                       Is this template really for free? That's unbelievable!
@@ -187,7 +187,7 @@
                       <span class="direct-chat-timestamp float-left">23 Jan 2:05 pm</span>
                     </div>
                     <!-- /.direct-chat-infos -->
-                    <img class="direct-chat-img" src="dist/img/user3-128x128.jpg" alt="message user image">
+                    <img class="direct-chat-img" src="/admin/dist/img/user3-128x128.jpg" alt="message user image">
                     <!-- /.direct-chat-img -->
                     <div class="direct-chat-text">
                       You better believe it!
@@ -203,7 +203,7 @@
                       <span class="direct-chat-timestamp float-right">23 Jan 5:37 pm</span>
                     </div>
                     <!-- /.direct-chat-infos -->
-                    <img class="direct-chat-img" src="dist/img/user1-128x128.jpg" alt="message user image">
+                    <img class="direct-chat-img" src="/admin/dist/img/user1-128x128.jpg" alt="message user image">
                     <!-- /.direct-chat-img -->
                     <div class="direct-chat-text">
                       Working with AdminLTE on a great new app! Wanna join?
@@ -219,7 +219,7 @@
                       <span class="direct-chat-timestamp float-left">23 Jan 6:10 pm</span>
                     </div>
                     <!-- /.direct-chat-infos -->
-                    <img class="direct-chat-img" src="dist/img/user3-128x128.jpg" alt="message user image">
+                    <img class="direct-chat-img" src="/admin/dist/img/user3-128x128.jpg" alt="message user image">
                     <!-- /.direct-chat-img -->
                     <div class="direct-chat-text">
                       I would love to.
@@ -236,7 +236,7 @@
                   <ul class="contacts-list">
                     <li>
                       <a href="#">
-                        <img class="contacts-list-img" src="dist/img/user1-128x128.jpg" alt="User Avatar">
+                        <img class="contacts-list-img" src="/admin/dist/img/user1-128x128.jpg" alt="User Avatar">
 
                         <div class="contacts-list-info">
                           <span class="contacts-list-name">
@@ -251,7 +251,7 @@
                     <!-- End Contact Item -->
                     <li>
                       <a href="#">
-                        <img class="contacts-list-img" src="dist/img/user7-128x128.jpg" alt="User Avatar">
+                        <img class="contacts-list-img" src="/admin/dist/img/user7-128x128.jpg" alt="User Avatar">
 
                         <div class="contacts-list-info">
                           <span class="contacts-list-name">
@@ -266,7 +266,7 @@
                     <!-- End Contact Item -->
                     <li>
                       <a href="#">
-                        <img class="contacts-list-img" src="dist/img/user3-128x128.jpg" alt="User Avatar">
+                        <img class="contacts-list-img" src="/admin/dist/img/user3-128x128.jpg" alt="User Avatar">
 
                         <div class="contacts-list-info">
                           <span class="contacts-list-name">
@@ -281,7 +281,7 @@
                     <!-- End Contact Item -->
                     <li>
                       <a href="#">
-                        <img class="contacts-list-img" src="dist/img/user5-128x128.jpg" alt="User Avatar">
+                        <img class="contacts-list-img" src="/admin/dist/img/user5-128x128.jpg" alt="User Avatar">
 
                         <div class="contacts-list-info">
                           <span class="contacts-list-name">
@@ -296,7 +296,7 @@
                     <!-- End Contact Item -->
                     <li>
                       <a href="#">
-                        <img class="contacts-list-img" src="dist/img/user6-128x128.jpg" alt="User Avatar">
+                        <img class="contacts-list-img" src="/admin/dist/img/user6-128x128.jpg" alt="User Avatar">
 
                         <div class="contacts-list-info">
                           <span class="contacts-list-name">
@@ -311,7 +311,7 @@
                     <!-- End Contact Item -->
                     <li>
                       <a href="#">
-                        <img class="contacts-list-img" src="dist/img/user8-128x128.jpg" alt="User Avatar">
+                        <img class="contacts-list-img" src="/admin/dist/img/user8-128x128.jpg" alt="User Avatar">
 
                         <div class="contacts-list-info">
                           <span class="contacts-list-name">
@@ -625,7 +625,7 @@
   <!-- /.content-wrapper -->
 
   <footer class="main-footer">
-    <th:block th:replace="~{admin/fragments/footer :: footer}"></th:block>
+    <th:block th:replace="~{store/fragments/footer :: footer}"></th:block>
   </footer>
 
   <!-- Control Sidebar -->
@@ -635,6 +635,6 @@
   <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
-<th:block th:replace="~{admin/fragments/footer_link :: footer_link}"></th:block>
+<th:block th:replace="~{store/fragments/footer_link :: footer_link}"></th:block>
 </body>
 </html>
