@@ -211,7 +211,7 @@
 							<!-- product tab content -->
 							<div class="tab-content">
 								<!-- tab1  -->
-								<div id="tab1" class="tab-pane fade in active">
+								<div id="tab1" class="tab-pane fade in">
 									<div class="row">
 										<div class="col-md-12">
 											<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
@@ -231,96 +231,12 @@
 								<!-- /tab2  -->
 
 								<!-- tab3  -->
-								<div id="tab3" class="tab-pane fade in">
+								<div id="tab3" class="tab-pane fade in active">
 									<div class="row">
-										<!-- Rating -->
-										<div class="col-md-3">
-											<div id="rating">
-												<div class="rating-avg">
-													<span>4.5</span>
-													<div class="rating-stars">
-														<i class="fa fa-star"></i>
-														<i class="fa fa-star"></i>
-														<i class="fa fa-star"></i>
-														<i class="fa fa-star"></i>
-														<i class="fa fa-star-o"></i>
-													</div>
-												</div>
-												<ul class="rating">
-													<li>
-														<div class="rating-stars">
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-														</div>
-														<div class="rating-progress">
-															<div style="width: 80%;"></div>
-														</div>
-														<span class="sum">3</span>
-													</li>
-													<li>
-														<div class="rating-stars">
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star-o"></i>
-														</div>
-														<div class="rating-progress">
-															<div style="width: 60%;"></div>
-														</div>
-														<span class="sum">2</span>
-													</li>
-													<li>
-														<div class="rating-stars">
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star-o"></i>
-															<i class="fa fa-star-o"></i>
-														</div>
-														<div class="rating-progress">
-															<div></div>
-														</div>
-														<span class="sum">0</span>
-													</li>
-													<li>
-														<div class="rating-stars">
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star-o"></i>
-															<i class="fa fa-star-o"></i>
-															<i class="fa fa-star-o"></i>
-														</div>
-														<div class="rating-progress">
-															<div></div>
-														</div>
-														<span class="sum">0</span>
-													</li>
-													<li>
-														<div class="rating-stars">
-															<i class="fa fa-star"></i>
-															<i class="fa fa-star-o"></i>
-															<i class="fa fa-star-o"></i>
-															<i class="fa fa-star-o"></i>
-															<i class="fa fa-star-o"></i>
-														</div>
-														<div class="rating-progress">
-															<div></div>
-														</div>
-														<span class="sum">0</span>
-													</li>
-												</ul>
-											</div>
-										</div>
-										<!-- /Rating -->
-
 										<!-- Reviews -->
-										<div class="col-md-6">
+										<div class="col-md-9" >
 											<div id="reviews">
-												<ul class="reviews">
+												<ul class="reviews" v-for="message in messages">
 													<li>
 														<div class="review-heading">
 															<h5 class="name">John</h5>
@@ -337,38 +253,7 @@
 															<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
 														</div>
 													</li>
-													<li>
-														<div class="review-heading">
-															<h5 class="name">John</h5>
-															<p class="date">27 DEC 2018, 8:0 PM</p>
-															<div class="review-rating">
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star-o empty"></i>
-															</div>
-														</div>
-														<div class="review-body">
-															<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
-														</div>
-													</li>
-													<li>
-														<div class="review-heading">
-															<h5 class="name">John</h5>
-															<p class="date">27 DEC 2018, 8:0 PM</p>
-															<div class="review-rating">
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star-o empty"></i>
-															</div>
-														</div>
-														<div class="review-body">
-															<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
-														</div>
-													</li>
+
 												</ul>
 												<ul class="reviews-pagination">
 													<li class="active">1</li>
@@ -382,11 +267,9 @@
 										<!-- /Reviews -->
 
 										<!-- Review Form -->
-										<div class="col-md-3">
+										<div class="col-md-3" v-if="connected">
 											<div id="review-form">
 												<form class="review-form">
-													<input class="input" type="text" placeholder="Your Name">
-													<input class="input" type="email" placeholder="Your Email">
 													<textarea class="input" placeholder="Your Review"></textarea>
 													<div class="input-rating">
 														<span>Your Rating: </span>
@@ -401,6 +284,10 @@
 													<button class="primary-btn">Submit</button>
 												</form>
 											</div>
+										</div>
+
+										<div v-else>
+											<button class="primary-btn" type="button" @click="connect()">Connect</button>
 										</div>
 										<!-- /Review Form -->
 									</div>
@@ -581,20 +468,29 @@
 			createApp({
 				setup(){
 					const productList=ref([]);
+					const connected=ref(false);//연결 정보를 시각적으로 표현하기 위한 논리값
+					const messages=ref([1,2,3,4,5,6,7,8,9]); //누적 채팅 메시지
 
-					const getProductList=()=>{
-						$.ajax({
-							url:"/product/list",
-							method:"GET",
-							success:function(data){
-								productList.value=data;
-							}
+					//STOMP 객체 선언
+					let stompClient=null;
+
+					//웹소켓 서버접속
+					const connect=()=>{
+						const websocket = new WebSocket("ws://localhost:9999/ws");
+						stompClient = Stomp.over(websocket);//웹소켓 위체 STOMP 얹혀 쓰겠다
+
+						//STOMP를 이용한 서버 연결 시도
+						stompClient.connect({}, ()=>{
+							//서버에 연결되면 이 콜백함수가 호출됨..
+							connected.value=true;
+							console.log("STOMP로 서버 연결 성공");
 						});
 					}
 
-					getProductList();
-
-					return {productList}
+					return {
+						productList, connected, messages,
+						connect
+					}
 				}
 
 

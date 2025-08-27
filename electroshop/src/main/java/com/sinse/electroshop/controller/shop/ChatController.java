@@ -31,7 +31,7 @@ public class ChatController {
     --------------------------------------------*/
     @MessageMapping("/connect") //   localhost:9999/app/conntect
     public Set<String> connect(ChatMessage message) {
-
+        log.debug("클라이언트 접속함");
         return null;
     }
 }
