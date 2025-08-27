@@ -2,11 +2,13 @@ package com.sinse.electroshop.controller.store;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class ProductController {
+@RequestMapping("/store")
+public class StoreProductController {
 
-    @GetMapping("/store/product/registform")
+    @GetMapping("/product/registform")
     public String registForm() {
         return "store/product/regist";
     }

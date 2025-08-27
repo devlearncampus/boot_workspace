@@ -46,38 +46,10 @@ public class ChatController {
         //STOMP 기반으로 HttpSession을 꺼내려면 인터셉터 객체를 구현 및 등록해야 함
 
         //1) 내가 참여하지 않았을 경우 이 상품과 관련된 방에 참여하기
-        boolean exist=false;
-        ChatRoom selectedRoom=null;
-
-        for(ChatRoom chatRoom : roomStorage.values()){
-            for(String id : chatRoom.getCustomers()){
-                if(id.equals(member.getId())){ //동일하다면
-                    exist=true;
-                    selectedRoom=chatRoom;
-                    break;
-                }
-            }
-        }
-
-        if(!exist){ //존재하지 않으면 현재 접속자를 명단에 추가
-            //발견된 방도 없고, 해당 상품으로 생성된 룸도 존재하지 않는다면, 억지로 만든다.(추후 관리자가 만들어야 함)
-            ChatRoom chatRoom=null;
-            if(exist==false){
-                if(roomStorage.containsKey(message.getContent())==false){
-                    chatRoom=new ChatRoom();
-                    chatRoom.setProduct_id(Integer.parseInt(message.getContent()));
-                    chatRoom.setRoomId(UUID.randomUUID().toString());
-                    roomStorage.put(chatRoom.getRoomId(), chatRoom);
-                }
-            }else{
-                chatRoom=selectedRoom;
-            }
-            selectedRoom.getCustomers().add(member.getId());
-        }
 
         //2) 내가 참여한 방과 같은 방에 있는 유저들 목록을 얻어와 @SendTo 로 보내기..
 
-        return selectedRoom.getCustomers();
+        return null;
     }
 }
 
