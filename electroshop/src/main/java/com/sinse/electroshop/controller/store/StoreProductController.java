@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/store")
@@ -28,4 +31,18 @@ public class StoreProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body("등록성공");
     }
 
+    @GetMapping("/product/list")
+    public String getList(Model model){
+        List productList=productService.getList();
+        model.addAttribute("productList", productList);
+
+        return "store/product/list";
+    }
+
+    @GetMapping("/product/listbystore")
+    public String getListByStore(Model model,  int store_id){
+        List productList = productService.getListByStoreId(store_id);
+        model.addAttribute("productList", productList);
+        return "store/product/list";
+    }
 }

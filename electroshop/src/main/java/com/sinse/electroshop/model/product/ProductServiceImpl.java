@@ -17,6 +17,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List getListByStoreId(int store_id) {
+        return productDAO.selectByStoreId(store_id);
+    }
+
+    @Override
     public Product getDetail(int product_id) {
         return productDAO.selectById(product_id);
     }
