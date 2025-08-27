@@ -7,5 +7,5 @@ import java.util.List;
 public interface ProductDAO {
     public List selectAll();
     public Product selectById(int product_id);
-
+    public Product regist(Product product);
 }

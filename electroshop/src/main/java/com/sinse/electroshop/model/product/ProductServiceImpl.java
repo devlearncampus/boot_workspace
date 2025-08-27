@@ -20,4 +20,10 @@ public class ProductServiceImpl implements ProductService {
     public Product getDetail(int product_id) {
         return productDAO.selectById(product_id);
     }
+
+    @Override
+    public Product save(Product product) {
+        return productDAO.regist(product);
+    }
+
 }

@@ -21,4 +21,11 @@ public class JpaProductDAO implements ProductDAO {
     public Product selectById(int product_id) {
         return repository.findById  (product_id);
     }
+
+    @Override
+    public Product regist(Product product) {
+        return repository.save(product);
+    }
+
+
 }
