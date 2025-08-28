@@ -14,7 +14,8 @@ public interface JpaProductRepository extends JpaRepository<Product, Integer> {
     //상품 한건 가져오기
     public Product findById(int productId);
 
-    //상품 한건 등록하기
+
+   //상품 한건 등록하기
     public Product save(Product product);
 
 

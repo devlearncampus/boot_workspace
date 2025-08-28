@@ -21,6 +21,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public Store login(Store store) throws StoreNotFoundException {
         Store obj=storeDAO.login(store);
+
         if(obj==null){
             throw new StoreNotFoundException("상점 로그인 정보가 올바르지 않습니다");
         }

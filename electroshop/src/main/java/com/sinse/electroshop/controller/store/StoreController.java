@@ -5,6 +5,7 @@ import com.sinse.electroshop.domain.Store;
 import com.sinse.electroshop.exception.MemberNotFoundException;
 import com.sinse.electroshop.exception.StoreNotFoundException;
 import com.sinse.electroshop.model.store.StoreService;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class StoreController {
     //상점의 로그인 요청 처리
     @PostMapping("/store/login")
     @ResponseBody
-    public ResponseEntity<String> login(StoreDTO storeDTO) {
+    public ResponseEntity<String> login(StoreDTO storeDTO, HttpSession session) {
 
         log.debug(storeDTO.toString());
 
@@ -43,9 +44,11 @@ public class StoreController {
         Store store = new Store();
         store.setBusinessId(storeDTO.getId());
         store.setPassword(storeDTO.getPwd());
-        store.setStoreName(storeDTO.getStore_name());
 
         Store obj=storeService.login(store); //로그인 검증
+
+        //세션에 담기
+        session.setAttribute("store",obj);
 
         return ResponseEntity.ok("success");
     }

@@ -52,23 +52,25 @@
             <!-- /.card-header -->
             <!-- form start -->
             <form id="form1">
-              <input type="hidden" class="form-control" name="store.storeId" th:value="${session.store.storeId}">
+              <input type="hidden" class="form-control" name="store.storeId" th:value="${product.store.storeId}">
 
               <div class="card-body">
                 <div class="form-group">
-                  <input type="text" class="form-control" name="product_name" placeholder="상품명 입력">
+                  <input type="text" class="form-control" name="product_name" th:value="${product.productName}">
                 </div>
                 <div class="form-group">
-                  <input type="number" class="form-control" name="price" placeholder="가격 입력">
+                  <input type="number" class="form-control" name="price" th:value="${product.price}">
                 </div>
                 <div class="form-group">
-                  <input type="text" class="form-control" name="brand" placeholder="브랜드 입력">
+                  <input type="text" class="form-control" name="brand" th:value="${product.brand}">
                 </div>
               </div>
               <!-- /.card-body -->
 
               <div class="card-footer">
-                <button type="button" id="bt_regist" class="btn btn-primary">Submit</button>
+                <button type="button" id="bt_regist" class="btn btn-primary">수정</button>
+                <button type="button" id="bt_liveon" class="btn btn-warning">라이브 시작</button>
+                <button type="button" id="bt_liveoff" class="btn btn-warning">라이브 종료</button>
               </div>
             </form>
           </div>
@@ -93,24 +95,11 @@
 </div>
 <!-- ./wrapper -->
 <th:block th:replace="~{store/fragments/footer_link :: footer_link}"></th:block>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script>
-  function regist(){
-
-    $.ajax({
-      url:"/store/product/regist",
-      method:"POST",
-      data:$("#form1").serialize(),
-      success:function(data){
-        console.log(data);
-        location.href="/store/product/list";
-      }
-    });
-  }
-
   $(()=>{
-    $("#bt_regist").click(()=>{
-      regist();
-    });
   });
 </script>
 </body>

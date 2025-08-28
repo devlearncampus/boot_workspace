@@ -24,7 +24,7 @@ public class JpaStoreDAO implements StoreDAO {
 
     @Override
     public Store login(Store store) {
-        return null;
+        return storeRepository.findByBusinessIdAndPassword(store.getBusinessId(), store.getPassword());
     }
 
     @Override

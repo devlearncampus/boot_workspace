@@ -1,8 +1,12 @@
 package com.sinse.electroshop.controller.store;
 
+import com.sinse.electroshop.controller.dto.ProductDTO;
 import com.sinse.electroshop.domain.Product;
+import com.sinse.electroshop.domain.Store;
 import com.sinse.electroshop.model.product.ProductService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/store")
 @RequiredArgsConstructor
@@ -24,7 +29,15 @@ public class StoreProductController {
 
     @PostMapping("/product/regist")
     @ResponseBody
-    public ResponseEntity<String> regist(Product product) {
+    public ResponseEntity<String> regist(ProductDTO productDTO) {
+        log.debug("productDTO = "+productDTO);
+
+        Product product = new Product();
+        Store store = new Store();
+        product.setStore(store);//Store를 Product에 주입
+        store.setStoreId(productDTO.getStore().getStoreId());
+        product.setPrice(productDTO.getPrice());
+        product.setBrand(productDTO.getBrand());
 
         productService.save(product);
 
@@ -40,9 +53,24 @@ public class StoreProductController {
     }
 
     @GetMapping("/product/listbystore")
-    public String getListByStore(Model model,  int storeId){
+    public String getListByStore(Model model,  @RequestParam(name="storeId", required = false) int storeId, HttpSession session){
+        if(storeId==0){
+            Store store=(Store)session.getAttribute("store");
+            storeId=store.getStoreId();
+        }
         List productList = productService.getListByStoreId(storeId);
         model.addAttribute("productList", productList);
         return "store/product/list";
     }
+
+    @GetMapping("/product/detail")
+    public String getDetail(Model model, @RequestParam(name="product_id", required = false, defaultValue = "0") int productId){
+
+        Product product=productService.getDetail(productId);
+        model.addAttribute("product", product);
+
+        return "store/product/detail";
+    }
+
+
 }

@@ -19,7 +19,7 @@ public class JpaProductDAO implements ProductDAO {
 
     @Override
     public Product selectById(int productId) {
-        return repository.findById  (productId);
+        return repository.findById(productId);
     }
 
     @Override
