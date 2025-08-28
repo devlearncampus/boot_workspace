@@ -130,8 +130,8 @@
 					<!-- Product details -->
 					<div class="col-md-5">
 						<div class="product-details">
-							<h2 class="product-name" th:text="${product.product_name}"></h2>
-							<input type="hidden" th:value="${product.product_id}" id="product_id">
+							<h2 class="product-name" th:text="${product.productName}"></h2>
+							<input type="hidden" th:value="${product.productId}" id="product_id">
 							<div>
 								<div class="product-rating">
 									<i class="fa fa-star"></i>
@@ -491,10 +491,10 @@
 								content:$("#product_id").val()
 							}));
 
-							//방 참여자 구독하기
+							//상점이 들어올때,그 시점을 알기위한 구독 요청
 							stompClient.subscribe("/topic/users", (msg)=>{
 								console.log("채팅 참여자는 ",msg.body);
-							})
+							});
 
 
 						});

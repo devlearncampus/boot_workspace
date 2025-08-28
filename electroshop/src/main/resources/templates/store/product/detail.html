@@ -20,6 +20,7 @@
   <th:block th:replace="~{store/fragments/sidebar :: sidebar}"></th:block>
 
   <!-- Content Wrapper. Contains page content -->
+  <div id="app">
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <div class="content-header">
@@ -47,12 +48,14 @@
           <!--등록폼 시작-->
           <div class="card card-primary">
             <div class="card-header">
-              <h3 class="card-title">Quick Example</h3>
+              <h3 class="card-title" v-if="isOnAir">Live On</h3>
+              <h3 class="card-title" v-else="isOnAir">Live Off</h3>
             </div>
             <!-- /.card-header -->
             <!-- form start -->
             <form id="form1">
-              <input type="hidden" class="form-control" name="store.storeId" th:value="${product.store.storeId}">
+              <input type="hidden" name="store.storeId" th:value="${product.store.storeId}">
+              <input type="hidden" id="product_id" th:value="${product.productId}">
 
               <div class="card-body">
                 <div class="form-group">
@@ -69,7 +72,7 @@
 
               <div class="card-footer">
                 <button type="button" id="bt_regist" class="btn btn-primary">수정</button>
-                <button type="button" id="bt_liveon" class="btn btn-warning">라이브 시작</button>
+                <button type="button" id="bt_liveon" class="btn btn-warning" @click="connect()">라이브 시작</button>
                 <button type="button" id="bt_liveoff" class="btn btn-warning">라이브 종료</button>
               </div>
             </form>
@@ -80,6 +83,7 @@
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
+  </div>
   </div>
   <!-- /.content-wrapper -->
 
@@ -99,8 +103,45 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script>
-  $(()=>{
-  });
+  const {createApp, ref} = Vue;
+
+  createApp({
+    setup(){
+      const isOnAir=ref(false); //방송중인지 여부 기준 변수
+
+      //웹소켓 서버 접속
+      let stompClient=null;
+
+      const connect=()=>{
+        const webSocket=new WebSocket("ws://localhost:9999/ws");
+        stompClient = Stomp.over(webSocket);
+
+        //STOMP와 서버 연결
+        stompClient.connect({}, ()=>{
+          //접속이 성공되면 할 작업들...
+          isOnAir.value=true;
+
+          //원하는 구독 요청
+          stompClient.subscribe("/topic/users", (msg)=>{
+            console.log("받은 메시지는 ",msg.body);
+          });
+
+          //접속했음을 알리고(방송시작 알림)
+          stompClient.send("/app/connect",{},JSON.stringify({
+            senderType:"store",
+            content:$("#product_id").val()
+          }));
+
+        });
+      }
+
+      return {
+        isOnAir,
+        connect
+      }
+    }
+  }).mount("#app");
+
 </script>
 </body>
 </html>

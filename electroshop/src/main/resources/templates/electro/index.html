@@ -62,14 +62,14 @@
 				<!-- row -->
 				<div class="row">
 					<!-- shop -->
-					<div class="col-md-4 col-xs-6" v-for="product in productList" :key="product.product_id">
+					<div class="col-md-4 col-xs-6" v-for="product in productList" :key="product.productId">
 						<div class="shop">
 							<div class="shop-img">
 								<img src="/electro/img/shop01.png" alt="">
 							</div>
 							<div class="shop-body">
-								<h3 v-text="product.product_name"></h3>
-								<a :href="'/product/detail?product_id='+product.product_id" class="cta-btn">{{product.store.store_name}} <i class="fa fa-arrow-circle-right"></i></a>
+								<h3 v-text="product.productName"></h3>
+								<a :href="'/product/detail?product_id='+product.productId" class="cta-btn">{{product.store.storeName}} <i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
