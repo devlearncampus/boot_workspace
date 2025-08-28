@@ -18,13 +18,13 @@ public class JpaProductDAO implements ProductDAO {
     }
 
     @Override
-    public Product selectById(int product_id) {
-        return repository.findById  (product_id);
+    public Product selectById(int productId) {
+        return repository.findById  (productId);
     }
 
     @Override
-    public List<Product> selectByStoreId(int store_id) {
-        return repository.findByStore_store_id(store_id);
+    public List<Product> selectByStoreId(int storeId) {
+        return repository.findByStore_storeId(storeId);
     }
 
     @Override

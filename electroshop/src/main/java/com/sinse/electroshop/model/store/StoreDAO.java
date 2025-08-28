@@ -1,4 +1,4 @@
-package com.sinse.electroshop.model.shop;
+package com.sinse.electroshop.model.store;
 
 import com.sinse.electroshop.domain.Store;
 
@@ -10,7 +10,10 @@ public interface StoreDAO {
     public Store save(Store store);
 
     //상점 한건 가져오기
-    public Store findById(int store_id);
+    public Store findById(int storeId);
+
+    //Id와 Password로 유저 찾기
+    public Store login(Store store);
 
     //모든 상점 가져오기
     public List<Store> findAll();
@@ -19,7 +22,7 @@ public interface StoreDAO {
     public Store update(Store store);
 
     //상점 정보 삭제
-    public void deleteById(int store_id);
+    public void deleteById(int storeId);
 }
 
 

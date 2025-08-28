@@ -2,10 +2,14 @@ package com.sinse.electroshop.controller.store;
 
 import com.sinse.electroshop.controller.dto.StoreDTO;
 import com.sinse.electroshop.domain.Store;
-import com.sinse.electroshop.model.shop.StoreService;
+import com.sinse.electroshop.exception.MemberNotFoundException;
+import com.sinse.electroshop.exception.StoreNotFoundException;
+import com.sinse.electroshop.model.store.StoreService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -37,11 +41,11 @@ public class StoreController {
 
         //파라미터가 담겨있는 객체는 DTO이므로, Model 객체인 Store로 옮기자
         Store store = new Store();
-        store.setBusiness_id(storeDTO.getId());
+        store.setBusinessId(storeDTO.getId());
         store.setPassword(storeDTO.getPwd());
-        store.setStore_name(storeDTO.getStore_name());
+        store.setStoreName(storeDTO.getStore_name());
 
-        storeService.regist(store);
+        Store obj=storeService.login(store); //로그인 검증
 
         return ResponseEntity.ok("success");
     }
@@ -51,6 +55,15 @@ public class StoreController {
     public String main() {
         return "store/index";
     }
+
+
+    @ExceptionHandler(StoreNotFoundException.class)
+    public ResponseEntity<String> handleException(StoreNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)  // 401
+                .body(ex.getMessage());           // 단순 문자열 반환
+    }
+
 
 
 }

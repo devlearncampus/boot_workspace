@@ -1,4 +1,4 @@
-package com.sinse.electroshop.model.shop;
+package com.sinse.electroshop.model.store;
 
 import com.sinse.electroshop.domain.Store;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.List;
 @RequiredArgsConstructor //public JpaStoreDAO(StoreRepository storeRepository){}
 public class JpaStoreDAO implements StoreDAO {
 
-    private final StoreRepository storeRepository;
+    private final JpaStoreRepository storeRepository;
 
     @Override
     public Store save(Store store) {
@@ -18,7 +18,12 @@ public class JpaStoreDAO implements StoreDAO {
     }
 
     @Override
-    public Store findById(int store_id) {
+    public Store findById(int storeId) {
+        return null;
+    }
+
+    @Override
+    public Store login(Store store) {
         return null;
     }
 
@@ -33,7 +38,7 @@ public class JpaStoreDAO implements StoreDAO {
     }
 
     @Override
-    public void deleteById(int store_id) {
+    public void deleteById(int storeId) {
 
     }
 }

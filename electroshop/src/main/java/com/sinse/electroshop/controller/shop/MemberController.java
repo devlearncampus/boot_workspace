@@ -2,8 +2,7 @@ package com.sinse.electroshop.controller.shop;
 
 import com.sinse.electroshop.controller.dto.MemberDTO;
 import com.sinse.electroshop.domain.Member;
-import com.sinse.electroshop.exception.MemberNotException;
-import com.sinse.electroshop.model.member.MemberDAO;
+import com.sinse.electroshop.exception.MemberNotFoundException;
 import com.sinse.electroshop.model.member.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -51,9 +50,9 @@ public class MemberController {
 
 
     //@ExceptionHandler 를 이용하면 이 컨트롤러 내에서 발생하는 모든 예외를 처리할 수 있다.
-    @ExceptionHandler(MemberNotException.class)
+    @ExceptionHandler(MemberNotFoundException.class)
     @ResponseBody
-    public ResponseEntity<String> handleException(MemberNotException e) {
+    public ResponseEntity<String> handleException(MemberNotFoundException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 }

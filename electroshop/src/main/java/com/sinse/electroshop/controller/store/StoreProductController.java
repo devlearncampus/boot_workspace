@@ -40,8 +40,8 @@ public class StoreProductController {
     }
 
     @GetMapping("/product/listbystore")
-    public String getListByStore(Model model,  int store_id){
-        List productList = productService.getListByStoreId(store_id);
+    public String getListByStore(Model model,  int storeId){
+        List productList = productService.getListByStoreId(storeId);
         model.addAttribute("productList", productList);
         return "store/product/list";
     }

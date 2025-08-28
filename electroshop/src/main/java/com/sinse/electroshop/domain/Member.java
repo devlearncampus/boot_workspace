@@ -9,7 +9,7 @@ import lombok.Data;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int member_id;
+    private int memberId;
 
     private String id;
     private String password;

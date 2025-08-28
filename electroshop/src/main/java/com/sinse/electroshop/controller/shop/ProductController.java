@@ -23,9 +23,9 @@ public class ProductController {
 
     //상품 상세 요청 처리
     @GetMapping("/product/detail")
-    public String getDetail(int product_id, Model model){
+    public String getDetail(int productId, Model model){
 
-        Product product=service.getDetail(product_id);
+        Product product=service.getDetail(productId);
         model.addAttribute("product", product);
 
         return "electro/product";
