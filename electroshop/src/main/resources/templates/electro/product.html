@@ -240,7 +240,7 @@
 												<ul class="reviews" v-for="message in messages">
 													<li>
 														<div class="review-heading">
-															<h5 class="name">John</h5>
+															<h5 class="name">{{message.sender}}</h5>
 															<p class="date">27 DEC 2018, 8:0 PM</p>
 															<div class="review-rating">
 																<i class="fa fa-star"></i>
@@ -251,7 +251,7 @@
 															</div>
 														</div>
 														<div class="review-body">
-															<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
+															<p>{{message.content}}</p>
 														</div>
 													</li>
 
@@ -270,8 +270,11 @@
 										<!-- Review Form -->
 										<div class="col-md-3" v-if="connected">
 											<div id="review-form">
-												<form class="review-form">
-													<textarea class="input" placeholder="Your Review"></textarea>
+												<h4>
+													참여자 수 <span>{{users.length}}</span>
+												</h4>
+													<input type="hidden" id="user_id" th:value="${session.member.id}">
+													<textarea type="text" class="input" placeholder="Your Review" v-model="message" @keyup.enter="sendMessage()"/></textarea>
 													<div class="input-rating">
 														<span>Your Rating: </span>
 														<div class="stars">
@@ -282,8 +285,8 @@
 															<input id="star1" name="rating" value="1" type="radio"><label for="star1"></label>
 														</div>
 													</div>
-													<button class="primary-btn">Submit</button>
-												</form>
+													<button class="primary-btn" type="button" @click="sendMessage()">Submit</button>
+
 											</div>
 										</div>
 
@@ -470,7 +473,9 @@
 				setup(){
 					const productList=ref([]);
 					const connected=ref(false);//연결 정보를 시각적으로 표현하기 위한 논리값
-					const messages=ref([1,2,3,4,5,6,7,8,9]); //누적 채팅 메시지
+					const message=ref("");//전송할 메시지
+					const messages=ref([]); //누적 채팅 메시지
+					const users=ref([]);//채팅방에 참여한 참여자목록
 
 					//STOMP 객체 선언
 					let stompClient=null;
@@ -493,16 +498,33 @@
 
 							//상점이 들어올때,그 시점을 알기위한 구독 요청
 							stompClient.subscribe("/topic/users", (msg)=>{
-								console.log("채팅 참여자는 ",msg.body);
+								users.value=JSON.parse(msg.body);
 							});
+
+							//서버의 메시지 구독 요청
+							stompClient.subscribe("/topic/messages", (msg)=>{
+								messages.value.push(JSON.parse(msg.body));
+							});
+
 
 
 						});
 					}
 
+					const sendMessage=()=>{
+						//메시지 입력을 하면, 서버에 전송
+						if(message.value.trim()){
+							stompClient.send("/app/chat.send",{},JSON.stringify({
+								sender:$("#user_id").val(),
+								content:message.value
+							}));
+							message.value=""; //입력창 비우기
+						}
+					}
+
 					return {
-						productList, connected, messages,
-						connect
+						productList, connected, message, messages,users,
+						connect, sendMessage
 					}
 				}
 

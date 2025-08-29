@@ -84,7 +84,7 @@
         <div class="row" v-if="isOnAir">
           <div class="col-md-3">
             <!--채팅 참여자 목록 시작-->
-            <textarea class="form-control" style="height: 300px">{{messages.join("\n")}}</textarea>
+            <textarea class="form-control" style="height: 300px">{{users.join("\n")}}</textarea>
             <!--채팅 참여자 목록 끝-->
           </div>
           <div class="col-md-9">
@@ -94,10 +94,12 @@
               <!-- form start -->
               <div class="card-body">
                 <div class="form-group">
-                  <input type="text" class="form-control" placeholder="채팅 메시지..">
+                  <input type="hidden" id="user_id" th:value="${session.store.businessId}">
+
+                  <input type="text" class="form-control" v-model="message" @keyup.enter="sendMessage()" placeholder="채팅 메시지..">
                 </div>
                 <div class="form-group">
-                  <textarea class="form-control" style="height:250px"></textarea>
+                  <textarea class="form-control" style="height:250px">{{messages.join()}}</textarea>
                 </div>
               </div>
               <!-- /.card-body -->
@@ -139,7 +141,9 @@
   createApp({
     setup(){
       const isOnAir=ref(false); //방송중인지 여부 기준 변수
-      const messages=ref([]);//서버에서 보내온 메시지 배열
+      const users=ref([]);//채팅방에 참여한 참여자목록
+      const messages=ref([]); //채팅 로그
+      const message=ref([]);
 
       //웹소켓 서버 접속
       let stompClient=null;
@@ -156,8 +160,15 @@
           //원하는 구독 요청
           stompClient.subscribe("/topic/users", (msg)=>{
             console.log("서버가 보낸 방 참여자는 ",msg.body);
-            messages.value=JSON.parse(msg.body);
+            users.value=JSON.parse(msg.body);
           });
+
+          //서버의 메시지 구독 요청
+          stompClient.subscribe("/topic/messages", (msg)=>{
+            let obj=JSON.parse(msg.body);
+            messages.value.push(obj.sender+":"+obj.content);
+          });
+
 
           //접속했음을 알리고(방송시작 알림)
           stompClient.send("/app/connect",{},JSON.stringify({
@@ -168,9 +179,16 @@
         });
       }
 
+      const sendMessage = () => {
+        stompClient.send("/app/chat.send",{},JSON.stringify({
+          sender:$("#user_id").val(),
+          content:message.value
+        }));
+      }
+
       return {
-        isOnAir,messages,
-        connect
+        isOnAir,users,messages, message,
+        connect, sendMessage
       }
     }
   }).mount("#app");
