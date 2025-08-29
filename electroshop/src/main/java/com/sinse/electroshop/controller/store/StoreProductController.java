@@ -53,11 +53,14 @@ public class StoreProductController {
     }
 
     @GetMapping("/product/listbystore")
-    public String getListByStore(Model model,  @RequestParam(name="storeId", required = false) int storeId, HttpSession session){
+    public String getListByStore(Model model,  @RequestParam(name="storeId", required = false, defaultValue = "0") int storeId, HttpSession session){
+        log.debug("storeId="+storeId);
+
         if(storeId==0){
             Store store=(Store)session.getAttribute("store");
             storeId=store.getStoreId();
         }
+
         List productList = productService.getListByStoreId(storeId);
         model.addAttribute("productList", productList);
         return "store/product/list";

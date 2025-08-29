@@ -45,41 +45,72 @@
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
-          <!--등록폼 시작-->
-          <div class="card card-primary">
-            <div class="card-header">
-              <h3 class="card-title" v-if="isOnAir">Live On</h3>
-              <h3 class="card-title" v-else="isOnAir">Live Off</h3>
-            </div>
-            <!-- /.card-header -->
-            <!-- form start -->
-            <form id="form1">
-              <input type="hidden" name="store.storeId" th:value="${product.store.storeId}">
-              <input type="hidden" id="product_id" th:value="${product.productId}">
+            <!--등록폼 시작-->
+            <div class="card card-primary">
+              <div class="card-header">
+                <h3 class="card-title" v-if="isOnAir">Live On</h3>
+                <h3 class="card-title" v-else="isOnAir">Live Off</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form id="form1">
+                <input type="hidden" name="store.storeId" th:value="${product.store.storeId}">
+                <input type="hidden" id="product_id" th:value="${product.productId}">
 
+                <div class="card-body">
+                  <div class="form-group">
+                    <input type="text" class="form-control" name="product_name" th:value="${product.productName}">
+                  </div>
+                  <div class="form-group">
+                    <input type="number" class="form-control" name="price" th:value="${product.price}">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" class="form-control" name="brand" th:value="${product.brand}">
+                  </div>
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                  <button type="button" id="bt_regist" class="btn btn-primary">수정</button>
+                  <button type="button" id="bt_liveon" class="btn btn-warning" @click="connect()">라이브 시작</button>
+                  <button type="button" id="bt_liveoff" class="btn btn-warning">라이브 종료</button>
+                </div>
+              </form>
+            </div>
+            <!--등록폼 끝-->
+          </div>
+        </div>
+
+        <div class="row" v-if="isOnAir">
+          <div class="col-md-3">
+            <!--채팅 참여자 목록 시작-->
+            <textarea class="form-control" style="height: 300px">{{messages.join("\n")}}</textarea>
+            <!--채팅 참여자 목록 끝-->
+          </div>
+          <div class="col-md-9">
+            <!--등록폼 시작-->
+            <div class="card card-primary">
+              <!-- /.card-header -->
+              <!-- form start -->
               <div class="card-body">
                 <div class="form-group">
-                  <input type="text" class="form-control" name="product_name" th:value="${product.productName}">
+                  <input type="text" class="form-control" placeholder="채팅 메시지..">
                 </div>
                 <div class="form-group">
-                  <input type="number" class="form-control" name="price" th:value="${product.price}">
-                </div>
-                <div class="form-group">
-                  <input type="text" class="form-control" name="brand" th:value="${product.brand}">
+                  <textarea class="form-control" style="height:250px"></textarea>
                 </div>
               </div>
               <!-- /.card-body -->
-
               <div class="card-footer">
-                <button type="button" id="bt_regist" class="btn btn-primary">수정</button>
-                <button type="button" id="bt_liveon" class="btn btn-warning" @click="connect()">라이브 시작</button>
-                <button type="button" id="bt_liveoff" class="btn btn-warning">라이브 종료</button>
+                <button type="button" id="bt_send" class="btn btn-primary">메시지 전송</button>
               </div>
-            </form>
-          </div>
-          <!--등록폼 끝-->
+
+            </div>
+            <!--등록폼 끝-->
           </div>
         </div>
+
+
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -108,6 +139,7 @@
   createApp({
     setup(){
       const isOnAir=ref(false); //방송중인지 여부 기준 변수
+      const messages=ref([]);//서버에서 보내온 메시지 배열
 
       //웹소켓 서버 접속
       let stompClient=null;
@@ -123,7 +155,8 @@
 
           //원하는 구독 요청
           stompClient.subscribe("/topic/users", (msg)=>{
-            console.log("받은 메시지는 ",msg.body);
+            console.log("서버가 보낸 방 참여자는 ",msg.body);
+            messages.value=JSON.parse(msg.body);
           });
 
           //접속했음을 알리고(방송시작 알림)
@@ -136,7 +169,7 @@
       }
 
       return {
-        isOnAir,
+        isOnAir,messages,
         connect
       }
     }
