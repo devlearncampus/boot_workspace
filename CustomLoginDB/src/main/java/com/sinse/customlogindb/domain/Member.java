@@ -3,8 +3,6 @@ package com.sinse.customlogindb.domain;
 import jakarta.persistence.*;
 import lombok.Data;
 
-
-
 @Entity
 @Table(name="member")
 @Data

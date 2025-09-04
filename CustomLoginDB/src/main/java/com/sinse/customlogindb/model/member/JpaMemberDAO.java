@@ -12,32 +12,7 @@ public class JpaMemberDAO implements MemberDAO {
     private final JpaMemberRepository repository;
 
     @Override
-    public List<Member> selectAll() {
-        return List.of();
-    }
-
-    @Override
-    public Member select(int member_id) {
-        return null;
-    }
-
-    @Override
     public Member getMemberById(String id) {
         return repository.findById(id);
-    }
-
-    @Override
-    public void insert(Member member) {
-
-    }
-
-    @Override
-    public void delete(Member member) {
-
-    }
-
-    @Override
-    public void update(Member member) {
-
     }
 }

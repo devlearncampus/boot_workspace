@@ -1,10 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+  function login() {
+    $.ajax({
+      url: "/member/login",                 // LoginServlet 매핑 주소
+      type: "POST",
+      data: {
+        username: $("#username").val(),
+        password: $("#password").val()
+      },
+      success: function(data) {
+        // 서버가 내려준 JSON 응답 자동 파싱됨 (data.accessToken, data.refreshToken)
+        console.log("Access Token:", data.accessToken);
+        console.log("Refresh Token:", data.refreshToken);
+
+        //Access 토큰만 저장 (localStorage 예시)
+        localStorage.setItem("accessToken", data.accessToken);
+
+        //localStorage.setItem("refreshToken", data.refreshToken);
+
+        alert("login success");
+      },
+      error: function(xhr) {
+        console.log("로그인 실패:", xhr.responseText);
+        alert("login fail!");
+      }
+    });
+  }
+
+  function callProtectedApi() {
+    const token = localStorage.getItem("accessToken");
+
+    $.ajax({
+      url: "/api/protected",  // 서버의 보호된 API
+      type: "GET",
+      headers: {
+        "Authorization": "Bearer " + token // Access Token 전달
+      },
+      success: function(data) {
+        console.log("API 응답:", data);
+        alert("Server Response " + JSON.stringify(data));
+      },
+      error: function(xhr) {
+        console.log("API 요청 실패:", xhr.status, xhr.responseText);
+        alert("Login fail  you need to be authenticated");
+      }
+    });
+  }
+
+</script>
+
+<form onsubmit="event.preventDefault(); login();">
+  <input id="username" type="text" placeholder="id" />
+  <input id="password" type="password" placeholder="password" />
+  <button type="submit">Login</button>
+</form>
+<button onclick="callProtectedApi()">Call API</button>
