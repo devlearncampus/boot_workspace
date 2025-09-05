@@ -1,5 +1,7 @@
 package com.sinse.jwtlogin.filter;
 
+import com.sinse.jwtlogin.domain.CustomUserDetails;
+import com.sinse.jwtlogin.model.member.CustomUserDetailsService;
 import com.sinse.jwtlogin.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,9 +28,11 @@ import java.util.Map;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public JwtAuthFilter(JwtUtil jwtUtil) {
+    public JwtAuthFilter(JwtUtil jwtUtil,CustomUserDetailsService customUserDetailsService) {
         this.jwtUtil = jwtUtil;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
@@ -37,16 +41,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         //클라이언트가 Authorization의 Bearer 에 함께보낸 Token 을 검증
         String header=request.getHeader("Authorization");
+        log.debug("header is "+header);
 
-        if(header !=null && header.startsWith("Bearer ") && SecurityContextHolder.getContext().getAuthentication()==null) {
+        if(header !=null && header.startsWith("Bearer ")) {
             String token=header.substring(7); //iindex 7번째부터 토큰이 시작되므로
+
+            log.debug("토큰 꺼냄");
 
             if(jwtUtil.validateToken(token)){ //토큰이 유효하다면..
                 //사용자 정보중 username 추출
                 String username=jwtUtil.getUsername(token);
                 log.debug("토큰으로부터 추출한 사용자 정보는 "+username);
 
-                
+                //Security 에게 이 요청이 인증을 받은 요청이라는 사실을 저장해야한다
+                CustomUserDetails user = (CustomUserDetails)customUserDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken auth=new UsernamePasswordAuthenticationToken(user,null,user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }else{
                 //에러메시지
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -34,8 +34,8 @@ public class JwtSecurityConfig {
     }
 
     @Bean
-    public OncePerRequestFilter jwtAuthFilter(JwtUtil jwtUtil) {
-        return new JwtAuthFilter(jwtUtil);
+    public OncePerRequestFilter jwtAuthFilter(JwtUtil jwtUtil, CustomUserDetailsService  customUserDetailsService ) {
+        return new JwtAuthFilter(jwtUtil, customUserDetailsService);
     }
 
 
