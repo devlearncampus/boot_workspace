@@ -72,7 +72,9 @@
       method:"POST",
       data:$("form").serialize(),
       success:function(data){
-        console.log(data);
+        console.log(data.accessToken);
+        //AccessToken 꺼내서 보관해놓아야 함
+        localStorage.setItem("accessToken",data.accessToken);
       },
       error:function(xhr){
         console.log("로그인 실패",xhr.status,",",xhr.responseText);
@@ -80,6 +82,21 @@
     });
   });
 
+  $("#bt_access").click(()=>{
+    $.ajax({
+      url:"/member/mypage",
+      method:"GET",
+      headers:{
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      },
+      success:function(data){
+        console.log(data);
+      },
+      error:function(xhr){
+        console.log(xhr.status,",",xhr.responseText);
+      }
+    });
+  });
 
 </script>
 </body>
