@@ -46,7 +46,7 @@
 
 <div class="container">
 
-  <form action="/action_page.php">
+  <form>
     <input type="text" name="username" placeholder="Your Id..">
     <input type="text" name="password" placeholder="Your Password..">
     <input type="button" value="Submit" id="bt_login">
@@ -55,19 +55,31 @@
 </div>
 
 <script>
+  /*
+  $("#bt_login").click(()=>{
+    $("form").attr({
+      action:"/member/login",
+      method:"post"
+    });
+    $("form").submit();
+  });
+  */
+
+
   $("#bt_login").click(()=>{
     $.ajax({
       url:"/member/login",
       method:"POST",
       data:$("form").serialize(),
       success:function(data){
-
+        console.log(data);
       },
       error:function(xhr){
-
+        console.log("로그인 실패",xhr.status,",",xhr.responseText);
       }
     });
   });
+
 
 </script>
 </body>
