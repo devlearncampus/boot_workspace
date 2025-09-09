@@ -18,6 +18,6 @@ public class RegistServiceImpl implements RegistService {
         memberDTO.setCode(code);
 
         //임시 회원정보를 redis에 등록
-        registRedisService.savePending(memberDTO);
+        //registRedisService.savePending(memberDTO);
     }
 }

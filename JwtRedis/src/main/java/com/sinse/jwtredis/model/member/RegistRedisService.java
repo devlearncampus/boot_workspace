@@ -3,12 +3,14 @@ package com.sinse.jwtredis.model.member;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sinse.jwtredis.controller.dto.MemberDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.Duration;
 
+@Slf4j
 //Redis 관련 로직 : 임시가입 정보를 저장하고, 검증,
 @Service
 public class RegistRedisService  {
@@ -51,6 +53,8 @@ public class RegistRedisService  {
 
             //이메일을 찾을 수 있도록 인덱스를 생성하자
             redis.opsForValue().set(codeKey(memberDTO.getCode()), memberDTO.getEmail(), PENDING_TTL);
+
+            log.debug("Redis에 등록된 이메일의 구분 코드는 "+memberDTO.getCode());
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
