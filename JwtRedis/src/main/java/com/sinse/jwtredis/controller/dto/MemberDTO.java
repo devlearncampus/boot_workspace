@@ -11,4 +11,5 @@ public class MemberDTO {
     private String name;
     private String email;
     private String code; //6자리 랜덤값
+    private String deviceId; //유저가 사용중인 디바이스의 고유값(디바이스마다 틀려야 함)
 }

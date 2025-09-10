@@ -58,7 +58,8 @@
             contentType:"application/json",
             data: JSON.stringify({
                 id:$("input[name='id']").val(),
-                pwd:$("input[name='pwd']").val()
+                pwd:$("input[name='pwd']").val(),
+                deviceId:"browser",
             }),
             success:function(data){
                 console.log(data);
