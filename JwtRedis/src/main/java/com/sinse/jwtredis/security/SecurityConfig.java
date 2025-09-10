@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .logout( logout -> logout.disable())
 
                 .authorizeHttpRequests( auth -> auth
-                        .requestMatchers("/member/regist.html", "/member/regist","/member/login.html","/member/login","/member/refresh" ,"/member/logout").permitAll()
+                        .requestMatchers("/index.html","/member/regist.html", "/member/regist","/member/login.html","/member/login","/member/refresh" ,"/member/logout").permitAll()
                         .anyRequest().authenticated() //이외 요청은 로그인을 해야 통과..
                 )
                 .build();//JWT 기반이므로 CSRF 불필요

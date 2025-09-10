@@ -3,6 +3,18 @@ package com.sinse.jwtredis.model.member;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+
+/*
+    [ Redis 3.x 기반 토큰 상태 관리 ]
+    1) 로그아웃 한 유저를 어떤 방식으로 블랙리스트에 저장할 것인지 키에 대한 설계
+        bl:access:<Jti>
+    2) 사용자의 모든 디바이스로부터 로그아웃을 수행하기 위한 버전 키값에 대한 설계
+        uv:<userId>
+    3) access 토큰과 함께 발급되는 refresh 토큰을 저장하기 위한 키값에 대한 설계
+        rt:<userId>:<deviceId>
+*/
+
 @Service
 public class RedisTokenService {
 
@@ -32,6 +44,28 @@ public class RedisTokenService {
         //해당 키가 존재할 경우 저장된 문자열 그대로 반환
         //StringRedisTemplate 객체는 redis가 반환한 nil 을 java의 null로 변환
         return (v==null) ? 0 : Integer.parseInt(v);
+    }
+
+    //AccessToken 을 블랙리스트 등록
+    //ttlSeconds 토큰에 남은 잔여 시간을 등록해야 함
+    public void registBlackList(String jti, long ttlSeconds){
+        //ttlSeconds이 이미 만료된 시간인 경우엔 블랙리스트에 등록할 필요조차 없다
+        if(ttlSeconds<=0)return;
+
+        // SETEX bl:access:jti 시간 값
+        redis.opsForValue().set("bl:access:"+jti,"1", Duration.ofSeconds(ttlSeconds));
+    }
+
+    //블랙리스트 조회
+    public boolean isBlackList(String jti){
+        Boolean exists=redis.hasKey("bl:access:"+jti);
+        //위의 hasKey() 메서드에 의해 수행되는 Redis 명령어는
+        // EXISTS  bl:access:abc123
+        // 1 -> 키가 존재
+        // 0-> 키가 없음
+        //Spring data redis는 이 반환값을 Boolean 값으로 자동 변경해줌
+
+        return exists !=null && exists;
     }
 }
 

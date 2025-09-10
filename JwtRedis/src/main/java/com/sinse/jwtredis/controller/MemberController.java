@@ -89,7 +89,7 @@ public class MemberController {
         CustomUserDetails userDetails=(CustomUserDetails)authentication.getPrincipal();
         log.debug("인증받은 회원의 아이디는 "+userDetails.getUsername());
         log.debug("인증받은 회원의 이메일은 "+userDetails.getEmail());
-        //log.debug("인증받은 회원의 권한은 "+userDetails.getRoleName());
+        log.debug("인증받은 회원의 권한은 "+userDetails.getRoleName());
 
         //인증에 성공하면 AccessToken(값) != RefreshToken(값) - 재발급의 대상이 되는지 검증
 

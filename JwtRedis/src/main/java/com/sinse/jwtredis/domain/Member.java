@@ -16,7 +16,7 @@ public class Member {
     private String name;
     private String email;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="role_id")
     private Role role;
 }

@@ -63,6 +63,10 @@
             }),
             success:function(data){
                 console.log(data);
+                localStorage.setItem("accessToken", data.accessToken);
+
+                //로그인 성공 후 메인페이지 보여주기
+                location.href="/index.html";
             },
             error:function(xhr){
                 console.log(xhr.responseText);
