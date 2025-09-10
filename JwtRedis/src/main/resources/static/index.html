@@ -22,11 +22,14 @@
         }
 
         function getMyInfo(){
+            //로그인 시점에 저장해놓은 accessToken 꺼내기
+            const accessToken = localStorage.getItem("accessToken");
+
             $.ajax({
                 url:"/member/myinfo",
                 method:"GET",
                 headers:{
-                    "Athorization" : "Bearer "+accessToken
+                    "Authorization" : "Bearer "+accessToken
                 },
                 success:function(data){
                     console.log(data);

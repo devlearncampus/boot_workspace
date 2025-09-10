@@ -1,6 +1,7 @@
 package com.sinse.jwtredis.security;
 
 import com.sinse.jwtredis.domain.CustomUserDetails;
+import com.sinse.jwtredis.filter.JwtAuthFilter;
 import com.sinse.jwtredis.model.member.MemberDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,10 +15,19 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final JwtAuthFilter jwtAuthFilter;
+
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
+    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -58,6 +68,10 @@ public class SecurityConfig {
                         .requestMatchers("/index.html","/member/regist.html", "/member/regist","/member/login.html","/member/login","/member/refresh" ,"/member/logout").permitAll()
                         .anyRequest().authenticated() //이외 요청은 로그인을 해야 통과..
                 )
+
+                //JWT 검증 필터를, 스프링 시큐리티의 필터 체인중 어느 부분에 관여하게 할지를 명시
+                .addFilterBefore(jwtAuthFilter, AuthenticationFilter.class)
+
                 .build();//JWT 기반이므로 CSRF 불필요
     }
 

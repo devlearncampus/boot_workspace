@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -109,6 +110,12 @@ public class MemberController {
         long expSec=jwtUtil.parseToken(accessToken).getBody().getExpiration().toInstant().getEpochSecond();
 
         return ResponseEntity.ok(new TokenResponse(accessToken,expSec));
+    }
+
+    //회원정보 요청 처리
+    @GetMapping("/member/myinfo")
+    public ResponseEntity<?> myinfo() {
+        return ResponseEntity.ok("당신은 인증받은 회원입니다");
     }
 }
 
