@@ -10,17 +10,20 @@ import com.sinse.jwtredis.model.member.RedisTokenService;
 import com.sinse.jwtredis.model.member.RegistService;
 import com.sinse.jwtredis.util.CookieUtil;
 import com.sinse.jwtredis.util.JwtUtil;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -102,21 +105,61 @@ public class MemberController {
         String accessToken=jwtUtil.createAccessToken(userDetails.getUsername(), userVersion ,memberDTO.getDeviceId());
         String refreshToken= jwtUtil.createRefreshToken(userDetails.getUsername(), memberDTO.getDeviceId());
 
-        //Refresh 토큰을 보안쿠키에 담기
         long rfTtlSec=refreshDays * (24*60*60);
+        //refresh 토큰의 경우, 서버에 저장해놓아야, 추후 재발급시 클라이언트가 전송한 쿠키에 들어있는
+        //refhreshToken과 비교가 가능하므로, redis에 저장하자
+        redistokenService.saveRefreshToken(userDetails.getUsername(),memberDTO.getDeviceId(),refreshToken, rfTtlSec);
+
+        //Refresh 토큰을 보안쿠키에 담기
         CookieUtil.setRefreshCookie(response,refreshToken,(int)rfTtlSec);
 
         //엑세스 토큰의 유효시간
         long expSec=jwtUtil.parseToken(accessToken).getBody().getExpiration().toInstant().getEpochSecond();
-
+        ///long expSec=60;
         return ResponseEntity.ok(new TokenResponse(accessToken,expSec));
     }
+
+    //토큰 재발급 요청 처리
+    /*
+    * @CookieValue(value="쿠키명", required=true/false) 자료형 변수명
+    클라이언트의 요청 헤더에 포함된 Cookie 항목에서 특정 쿠키 이름을 찾아 컨트롤러 메서드의 파라미터에 주입
+    required=true : 해당 쿠키가 없으면 400 에러 (Bad Request)
+    required=false : 쿠키가 없어도 예외가 발생하지 않음,  그냥 null이 들어옴
+    */
+    @PostMapping("/member/refresh")
+    public ResponseEntity<?> refresh(
+            @CookieValue(value="Refresh", required = false) String refreshToken
+            , String deviceId) {
+        try{
+            //쿠키가 없다면 401에러 보내기
+            if(!StringUtils.hasText(refreshToken)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error","no refresh cookie"));
+            }
+
+            //필수는 아니지만, 한명의 유저가 보유한 여러 디바이스와 관련 인증 처리할 경우 devicdeId
+            //파라미터가 dTO가 아니므로 별도 처리 불필요..
+
+            //재발급에 앞서, RefreshToken이 유효한지를 검증하자
+            Jws<Claims> jws=jwtUtil.parseToken(refreshToken);
+
+
+
+
+        }catch(Exception e){
+
+        }
+        return null;
+    }
+
 
     //회원정보 요청 처리
     @GetMapping("/member/myinfo")
     public ResponseEntity<?> myinfo() {
         return ResponseEntity.ok("당신은 인증받은 회원입니다");
     }
+
+
 }
 
 

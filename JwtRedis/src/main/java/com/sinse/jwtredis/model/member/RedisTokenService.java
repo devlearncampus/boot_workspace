@@ -67,6 +67,17 @@ public class RedisTokenService {
 
         return exists !=null && exists;
     }
+
+    //리프레시 토큰 저장하기
+    //SETEX rt:scott:browser 지속시간  "값"
+    public void saveRefreshToken(String userId, String deviceId,String refreshToken, long ttlSeconds){
+        redis.opsForValue().set("rt:"+userId+":"+deviceId,refreshToken,Duration.ofSeconds(ttlSeconds));
+        //참고로 ,추후 이 사용자의 디바이스를 목록으로 만들어 놓으려면
+        //SADD  rtkeys:scott  browser
+        //SADD  rtkeys:scott  smartphone
+        //SADD  rtkeys:scott pc
+        //redis.opsForSet().add("rtkeys:"+userId, deviceId);
+    }
 }
 
 

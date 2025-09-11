@@ -17,8 +17,51 @@
 
         }
 
+        //로그아웃 요청
         function logout(){
+            const accessToken = localStorage.getItem("accessToken");
+            const deviceId = localStorage.getItem("deviceId");
 
+            $.ajax({
+                url:"/member/logout",
+                method:"post",
+                contentType:"application/json;charset=utf-8",
+                data:JSON.stringify({
+                    accessToken:accessToken,
+                    deviceId:deviceId,
+                }),
+                success:function(data){
+
+                },
+                error:function(xhr){
+
+                }
+            });
+        }
+
+        //리프레시 토큰을 이용한 accessToken 재발급
+        //유효한 refesh 토큰을 이용하여 accesstoken 재발급 요청
+        //주의) refresh 토큰은 이미 쿠키로 받아 왔기 때문에, 무조건 요청 시
+        //자동으로 서버에 전송된다..따라서 별도 지참 불필요..
+        function tryAccessToken(){
+            $.ajax({
+                url:"/member/refresh",
+                method:"post",
+                contentType:"application/json;charset=utf-8",
+                data:JSON.stringify({
+                    deviceId:localStorage.getItem("deviceId")
+                }),
+                success:function(data){
+                    //새롭게 발급된 accessToken 을 확인해보기
+                    console.log(data.accessToken);
+
+                    //사라지기 전에 저장소에 보관
+                    localStorage.setItem("accessToken", data.accessToken);
+                },
+                error:function(xhr){
+
+                }
+            });
         }
 
         function getMyInfo(){
@@ -34,8 +77,13 @@
                 success:function(data){
                     console.log(data);
                 },
-                error:function(data){
-
+                error:function(xhr){
+                    if(xhr.status == 401){
+                        //나의 정보를 요청하던 중, 401을 만났으므로, 토큰 만료 가능성이 높음
+                        //따라서 유저가 알아채지 못하게 몰래, 토큰 재발급을 요청할 것임..
+                        console.log("액세스 토큰 만료로 인하여 재발급 몰래 받기시도할 예정");
+                        tryAccessToken();
+                    }
                 }
             });
         }
