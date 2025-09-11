@@ -1,5 +1,6 @@
 package com.sinse.jwtredis.controller;
 
+import com.sinse.jwtredis.controller.dto.LogoutRequest;
 import com.sinse.jwtredis.controller.dto.MemberDTO;
 import com.sinse.jwtredis.controller.dto.TokenResponse;
 import com.sinse.jwtredis.domain.CustomUserDetails;
@@ -23,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.Map;
 
 @Slf4j
@@ -191,6 +193,48 @@ public class MemberController {
         return ResponseEntity.ok("당신은 인증받은 회원입니다");
     }
 
+    /*로그아웃 요청 처리
+     1) 로그아웃을 요청하는 클라이언트의 AccessToken을 블랙리스트로 등록
+     2) 회원으로써 서비스 이용을 중단 요청이기에 Redis 에 등록된 RefreshToken 삭제
+     3) 쿠키에 들어있는 refreshtoken 삭제
+    */
+    @PostMapping("/member/logout")
+    public ResponseEntity<?> logout(@RequestBody LogoutRequest request, HttpServletResponse response){
+        try {
+            //1) 요청의 유효성을 판단하여, 유효하던 유효하지 않던간에 무조건 로그아웃에 대한 요청처리
+            //결과는 동일한 '성공' 으로 응답하자
+            //AccessToken, DeviceId
+            if (request == null || !StringUtils.hasText(request.getAccessToken())
+                    || !StringUtils.hasText(request.getDeviceId())) {
+                return ResponseEntity.ok(Map.of("result", "로그아웃 성공"));
+            }
+
+            //클라이언트가 전송한 AccessToken 에서 정보 꺼내기
+            Jws<Claims> jws=jwtUtil.parseToken(request.getAccessToken());
+            Claims claims=jws.getBody();
+            String userId=claims.getSubject();
+            String jti=claims.getId();
+            //현재시간과 JWT가 보유한 유효기간을 구해서 남은 TTL을 구하자
+            long exp=claims.getExpiration().toInstant().getEpochSecond();
+            long now= Instant.now().getEpochSecond();
+            //결과가 양수라면 - 만료까지 남은 초
+            //결과가 음수라면 - 남은 시간이 없음, 즉 만료..
+            long ttl=Math.max(0, exp-now); //남은 만료 초
+
+            //redis에 블랙리스트에 등록
+            redistokenService.registBlackList(jti,ttl); // redis 에서 SET bl:access:<JTI> 45
+
+            //redis에서 refreshToken 삭제
+            redistokenService.deleteRefreshToken(userId,request.getDeviceId());
+
+            //쿠키삭제
+            CookieUtil.clearRefreshCookie(response);
+
+            return ResponseEntity.ok(Map.of("result","로그아웃 성공"));
+        }catch(Exception e){
+            return ResponseEntity.ok(Map.of("result","로그아웃 성공(token invalid)"));
+        }
+    }
 
 }
 

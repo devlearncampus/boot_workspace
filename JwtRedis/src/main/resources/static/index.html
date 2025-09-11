@@ -31,10 +31,15 @@
                     deviceId:deviceId,
                 }),
                 success:function(data){
+                    //로컬 상에 보유한 데이터를 삭제
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("deviceId");
 
+                    alert("로그아웃 되었습니다");
+                    location.href="/member/login.html";
                 },
                 error:function(xhr){
-
+                    console.log(xhr.responseText);
                 }
             });
         }
