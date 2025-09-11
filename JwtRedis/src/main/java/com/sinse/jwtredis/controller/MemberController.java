@@ -129,7 +129,7 @@ public class MemberController {
     @PostMapping("/member/refresh")
     public ResponseEntity<?> refresh(
             @CookieValue(value="Refresh", required = false) String refreshToken
-            , String deviceId, HttpServletResponse response) {
+            ,@RequestBody MemberDTO memberDTO, HttpServletResponse response) {
 
         try{
             //쿠키가 없다면 401에러 보내기
@@ -137,6 +137,7 @@ public class MemberController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error","no refresh cookie"));
             }
+            log.debug("deviceId is "+memberDTO.getDeviceId());
             log.debug("쿠키가 유효하여 진행 ");
 
             //필수는 아니지만, 한명의 유저가 보유한 여러 디바이스와 관련 인증 처리할 경우 devicdeId
@@ -149,7 +150,7 @@ public class MemberController {
 
 
             //redis와 일치여부를 판단
-            if(!redistokenService.matchesRefreshToken(userId,deviceId,refreshToken)){
+            if(!redistokenService.matchesRefreshToken(userId,memberDTO.getDeviceId(),refreshToken)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error","refresh not matched"));
             }
@@ -160,17 +161,17 @@ public class MemberController {
             int version=redistokenService.currentUserVersion(userId);
 
             //보안상 안전성을 위해 AccessToken만 발급하지 말고, RefreshToken 조차 갱신하는게 좋다!!
-            String newAccessToken=jwtUtil.createAccessToken(userId,version, deviceId);
-            String newRefreshToken=jwtUtil.createRefreshToken(userId, deviceId);
+            String newAccessToken=jwtUtil.createAccessToken(userId,version, memberDTO.getDeviceId());
+            String newRefreshToken=jwtUtil.createRefreshToken(userId, memberDTO.getDeviceId());
 
             log.debug("newAccessToken = "+newAccessToken);
             log.debug("newRefreshToken = "+newRefreshToken);
 
             //RefreshToken 새롭게 발급되었으므로 기존 redis가 보관하고 있던 refreshToken을 제거하고
             //새롭게 다시 넣자!!
-            redistokenService.deleteRefreshToken(userId, deviceId);
+            redistokenService.deleteRefreshToken(userId, memberDTO.getDeviceId());
             long rtTtlSec=refreshDays * (24*60*60);
-            redistokenService.saveRefreshToken(userId, deviceId, newRefreshToken,rtTtlSec);
+            redistokenService.saveRefreshToken(userId, memberDTO.getDeviceId(), newRefreshToken,rtTtlSec);
 
             //보안 처리된 쿠키에 refreshToken 담기
             CookieUtil.setRefreshCookie(response, newRefreshToken, (int)rtTtlSec);
