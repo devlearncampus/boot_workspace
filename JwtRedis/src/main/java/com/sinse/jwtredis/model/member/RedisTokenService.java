@@ -78,6 +78,23 @@ public class RedisTokenService {
         //SADD  rtkeys:scott pc
         //redis.opsForSet().add("rtkeys:"+userId, deviceId);
     }
+
+    //RefreshToken 일치 여부 확인 메서드 정의
+    // GET rt:유저id:deviceId
+    public boolean matchesRefreshToken(String userId, String deviceId,String refreshToken){
+        //기존 redis에 저장해놓은 refrestoken 에 대한 키에 대한 값 갖고오기
+        String storedValue=redis.opsForValue().get("rt:"+userId+":"+deviceId);
+
+        //저장된 키와 refreshtoken과 비교
+        return storedValue!=null && refreshToken.equals(storedValue);
+
+    }
+
+    //특정 refreshToken 지우기
+    //키만 있다면, 언제든 지울수 있다.. key형식  rt:userId:devideId
+    public void deleteRefreshToken(String userId, String deviceId){
+        redis.delete("rt:"+userId+":"+deviceId);
+    }
 }
 
 

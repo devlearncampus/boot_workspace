@@ -106,8 +106,8 @@ public class MemberController {
         String refreshToken= jwtUtil.createRefreshToken(userDetails.getUsername(), memberDTO.getDeviceId());
 
         long rfTtlSec=refreshDays * (24*60*60);
-        //refresh 토큰의 경우, 서버에 저장해놓아야, 추후 재발급시 클라이언트가 전송한 쿠키에 들어있는
-        //refhreshToken과 비교가 가능하므로, redis에 저장하자
+        //refresh 토큰의 경우, 서버에 저장해놓아야, 추후 AccessToken 재발급 시 클라이언트가 전송한
+        //쿠키에 들어있는 refhreshToken과 비교가 가능하므로, redis에 저장하자
         redistokenService.saveRefreshToken(userDetails.getUsername(),memberDTO.getDeviceId(),refreshToken, rfTtlSec);
 
         //Refresh 토큰을 보안쿠키에 담기
@@ -129,29 +129,60 @@ public class MemberController {
     @PostMapping("/member/refresh")
     public ResponseEntity<?> refresh(
             @CookieValue(value="Refresh", required = false) String refreshToken
-            , String deviceId) {
+            , String deviceId, HttpServletResponse response) {
+
         try{
             //쿠키가 없다면 401에러 보내기
             if(!StringUtils.hasText(refreshToken)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error","no refresh cookie"));
             }
+            log.debug("쿠키가 유효하여 진행 ");
 
             //필수는 아니지만, 한명의 유저가 보유한 여러 디바이스와 관련 인증 처리할 경우 devicdeId
             //파라미터가 dTO가 아니므로 별도 처리 불필요..
 
             //재발급에 앞서, RefreshToken이 유효한지를 검증하자
             Jws<Claims> jws=jwtUtil.parseToken(refreshToken);
+            Claims claims=jws.getBody();
+            String userId=claims.getSubject(); //userId
 
 
+            //redis와 일치여부를 판단
+            if(!redistokenService.matchesRefreshToken(userId,deviceId,refreshToken)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error","refresh not matched"));
+            }
+            log.debug("기존 Refresh Token 유효함");
 
+            //redis에서 관리중인 userVersion을 가져오기
+            //현재 사용자 버전 가져오기
+            int version=redistokenService.currentUserVersion(userId);
+
+            //보안상 안전성을 위해 AccessToken만 발급하지 말고, RefreshToken 조차 갱신하는게 좋다!!
+            String newAccessToken=jwtUtil.createAccessToken(userId,version, deviceId);
+            String newRefreshToken=jwtUtil.createRefreshToken(userId, deviceId);
+
+            log.debug("newAccessToken = "+newAccessToken);
+            log.debug("newRefreshToken = "+newRefreshToken);
+
+            //RefreshToken 새롭게 발급되었으므로 기존 redis가 보관하고 있던 refreshToken을 제거하고
+            //새롭게 다시 넣자!!
+            redistokenService.deleteRefreshToken(userId, deviceId);
+            long rtTtlSec=refreshDays * (24*60*60);
+            redistokenService.saveRefreshToken(userId, deviceId, newRefreshToken,rtTtlSec);
+
+            //보안 처리된 쿠키에 refreshToken 담기
+            CookieUtil.setRefreshCookie(response, newRefreshToken, (int)rtTtlSec);
+
+            //원래 목적이었던 AccessToken을 응답 body에 넣기
+            return ResponseEntity.ok(Map.of("accessToken",newAccessToken));
 
         }catch(Exception e){
-
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error","refresh failed"));
         }
-        return null;
     }
-
 
     //회원정보 요청 처리
     @GetMapping("/member/myinfo")

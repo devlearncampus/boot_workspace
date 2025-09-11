@@ -53,13 +53,13 @@
                 }),
                 success:function(data){
                     //새롭게 발급된 accessToken 을 확인해보기
-                    console.log(data.accessToken);
+                    console.log("새롭게 발급받은 accessToken ",data.accessToken);
 
                     //사라지기 전에 저장소에 보관
                     localStorage.setItem("accessToken", data.accessToken);
                 },
                 error:function(xhr){
-
+                   console.log("재발급 실패",xhr.responseText);
                 }
             });
         }
