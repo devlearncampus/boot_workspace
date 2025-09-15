@@ -2,8 +2,11 @@ package com.sinse.apiapp.model.board;
 
 import com.sinse.apiapp.domain.Board;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
+@Transactional
 @Service
 public class BoardServiceImpl implements BoardService {
 
@@ -29,8 +32,12 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public void update(Board board) {
-        jpaBoardRepository.save(board);
+    public void update(int boardId,Board board) {
+        Board obj=jpaBoardRepository.findById(boardId).orElse(null);
+
+        obj.setTitle(board.getTitle());
+        obj.setWriter(board.getWriter());
+        obj.setContent(board.getContent());
     }
 
     @Override

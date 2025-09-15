@@ -47,7 +47,7 @@ public class BoardController {
     //수정하기
     @PutMapping("/boards/{boardId}")
     public ResponseEntity updateBoard(@PathVariable int boardId, @RequestBody Board board) {
-        boardService.update(board);
+        boardService.update(boardId,board);
         return ResponseEntity.ok(Map.of("result", "수정 성공"));
     }
 

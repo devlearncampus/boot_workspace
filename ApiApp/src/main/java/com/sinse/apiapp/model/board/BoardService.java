@@ -8,6 +8,6 @@ public interface BoardService {
     public List<Board> selectAll();
     public Board select(int boardId);
     public void regist(Board board);
-    public void update(Board board);
+    public void update(int boardId,Board board);
     public void delete(int boardId);
 }
